@@ -1,0 +1,66 @@
+<svg width="256" height="256" viewBox="0 0 256 256" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect x="27.3945" y="37.0388" width="21.1039" height="38.961" stroke="currentColor" stroke-width="4"/>
+<path d="M59.0508 37.0388H27.3949V95.4804" stroke="currentColor" stroke-width="4"/>
+<rect x="16.8438" y="17.5635" width="42.2018" height="77.9169" stroke="currentColor" stroke-width="4"/>
+<path d="M27.3957 17.5583V37.0389H16.8438" stroke="currentColor" stroke-width="4"/>
+<rect x="69.6055" y="114.961" width="21.1039" height="38.961" transform="rotate(180 69.6055 114.961)" stroke="currentColor" stroke-width="4"/>
+<path d="M37.9492 114.961H69.6051V56.5196" stroke="currentColor" stroke-width="4"/>
+<rect x="80.1562" y="134.437" width="42.2018" height="77.9169" transform="rotate(180 80.1562 134.437)" stroke="currentColor" stroke-width="4"/>
+<path d="M69.6043 134.442V114.961H80.1562" stroke="currentColor" stroke-width="4"/>
+<rect x="27.3945" y="141.039" width="21.1039" height="38.961" stroke="currentColor" stroke-width="4"/>
+<path d="M59.0508 141.039H27.3949V199.48" stroke="currentColor" stroke-width="4"/>
+<rect x="16.8438" y="121.563" width="42.2018" height="77.9169" stroke="currentColor" stroke-width="4"/>
+<path d="M27.3957 121.558V141.039H16.8438" stroke="currentColor" stroke-width="4"/>
+<rect x="69.6055" y="218.961" width="21.1039" height="38.961" transform="rotate(180 69.6055 218.961)" stroke="currentColor" stroke-width="4"/>
+<path d="M37.9492 218.961H69.6051V160.52" stroke="currentColor" stroke-width="4"/>
+<rect x="80.1562" y="238.437" width="42.2018" height="77.9169" transform="rotate(180 80.1562 238.437)" stroke="currentColor" stroke-width="4"/>
+<path d="M69.6043 238.442V218.961H80.1562" stroke="currentColor" stroke-width="4"/>
+<rect width="21.1039" height="38.961" transform="matrix(-1 0 0 1 122.605 37.0388)" stroke="currentColor" stroke-width="4"/>
+<path d="M90.9492 37.0388H122.605V95.4804" stroke="currentColor" stroke-width="4"/>
+<rect width="42.2018" height="77.9169" transform="matrix(-1 0 0 1 133.156 17.5635)" stroke="currentColor" stroke-width="4"/>
+<path d="M122.604 17.5583V37.0389H133.156" stroke="currentColor" stroke-width="4"/>
+<rect width="21.1039" height="38.961" transform="matrix(1 0 0 -1 80.3945 114.961)" stroke="currentColor" stroke-width="4"/>
+<path d="M112.051 114.961H80.3949V56.5196" stroke="currentColor" stroke-width="4"/>
+<rect width="42.2018" height="77.9169" transform="matrix(1 0 0 -1 69.8438 134.437)" stroke="currentColor" stroke-width="4"/>
+<path d="M80.3957 134.442V114.961H69.8438" stroke="currentColor" stroke-width="4"/>
+<rect width="21.1039" height="38.961" transform="matrix(-1 0 0 1 122.605 141.039)" stroke="currentColor" stroke-width="4"/>
+<path d="M90.9492 141.039H122.605V199.48" stroke="currentColor" stroke-width="4"/>
+<rect width="42.2018" height="77.9169" transform="matrix(-1 0 0 1 133.156 121.563)" stroke="currentColor" stroke-width="4"/>
+<path d="M122.604 121.558V141.039H133.156" stroke="currentColor" stroke-width="4"/>
+<rect width="21.1039" height="38.961" transform="matrix(1 0 0 -1 80.3945 218.961)" stroke="currentColor" stroke-width="4"/>
+<path d="M112.051 218.961H80.3949V160.52" stroke="currentColor" stroke-width="4"/>
+<rect width="42.2018" height="77.9169" transform="matrix(1 0 0 -1 69.8438 238.437)" stroke="currentColor" stroke-width="4"/>
+<path d="M80.3957 238.442V218.961H69.8438" stroke="currentColor" stroke-width="4"/>
+<rect x="133.395" y="37.0388" width="21.1039" height="38.961" stroke="currentColor" stroke-width="4"/>
+<path d="M165.051 37.0388H133.395V95.4804" stroke="currentColor" stroke-width="4"/>
+<rect x="122.844" y="17.5635" width="42.2018" height="77.9169" stroke="currentColor" stroke-width="4"/>
+<path d="M133.396 17.5583V37.0389H122.844" stroke="currentColor" stroke-width="4"/>
+<rect x="175.605" y="114.961" width="21.1039" height="38.961" transform="rotate(180 175.605 114.961)" stroke="currentColor" stroke-width="4"/>
+<path d="M143.949 114.961H175.605V56.5196" stroke="currentColor" stroke-width="4"/>
+<rect x="186.156" y="134.437" width="42.2018" height="77.9169" transform="rotate(180 186.156 134.437)" stroke="currentColor" stroke-width="4"/>
+<path d="M175.604 134.442V114.961H186.156" stroke="currentColor" stroke-width="4"/>
+<rect x="133.395" y="141.039" width="21.1039" height="38.961" stroke="currentColor" stroke-width="4"/>
+<path d="M165.051 141.039H133.395V199.48" stroke="currentColor" stroke-width="4"/>
+<rect x="122.844" y="121.563" width="42.2018" height="77.9169" stroke="currentColor" stroke-width="4"/>
+<path d="M133.396 121.558V141.039H122.844" stroke="currentColor" stroke-width="4"/>
+<rect x="175.605" y="218.961" width="21.1039" height="38.961" transform="rotate(180 175.605 218.961)" stroke="currentColor" stroke-width="4"/>
+<path d="M143.949 218.961H175.605V160.52" stroke="currentColor" stroke-width="4"/>
+<rect x="186.156" y="238.437" width="42.2018" height="77.9169" transform="rotate(180 186.156 238.437)" stroke="currentColor" stroke-width="4"/>
+<path d="M175.604 238.442V218.961H186.156" stroke="currentColor" stroke-width="4"/>
+<rect width="21.1039" height="38.961" transform="matrix(-1 0 0 1 228.605 37.0388)" stroke="currentColor" stroke-width="4"/>
+<path d="M196.949 37.0388H228.605V95.4804" stroke="currentColor" stroke-width="4"/>
+<rect width="42.2018" height="77.9169" transform="matrix(-1 0 0 1 239.156 17.5635)" stroke="currentColor" stroke-width="4"/>
+<path d="M228.604 17.5583V37.0389H239.156" stroke="currentColor" stroke-width="4"/>
+<rect width="21.1039" height="38.961" transform="matrix(1 0 0 -1 186.395 114.961)" stroke="currentColor" stroke-width="4"/>
+<path d="M218.051 114.961H186.395V56.5196" stroke="currentColor" stroke-width="4"/>
+<rect width="42.2018" height="77.9169" transform="matrix(1 0 0 -1 175.844 134.437)" stroke="currentColor" stroke-width="4"/>
+<path d="M186.396 134.442V114.961H175.844" stroke="currentColor" stroke-width="4"/>
+<rect width="21.1039" height="38.961" transform="matrix(-1 0 0 1 228.605 141.039)" stroke="currentColor" stroke-width="4"/>
+<path d="M196.949 141.039H228.605V199.48" stroke="currentColor" stroke-width="4"/>
+<rect width="42.2018" height="77.9169" transform="matrix(-1 0 0 1 239.156 121.563)" stroke="currentColor" stroke-width="4"/>
+<path d="M228.604 121.558V141.039H239.156" stroke="currentColor" stroke-width="4"/>
+<rect width="21.1039" height="38.961" transform="matrix(1 0 0 -1 186.395 218.961)" stroke="currentColor" stroke-width="4"/>
+<path d="M218.051 218.961H186.395V160.52" stroke="currentColor" stroke-width="4"/>
+<rect width="42.2018" height="77.9169" transform="matrix(1 0 0 -1 175.844 238.437)" stroke="currentColor" stroke-width="4"/>
+<path d="M186.396 238.442V218.961H175.844" stroke="currentColor" stroke-width="4"/>
+</svg>

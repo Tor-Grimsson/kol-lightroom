@@ -1,0 +1,20 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# OS cruft
+.DS_Store
+
+# Secrets — never commit (Supabase keys live here)
+.env
+.env.local
+.env*.local
+
+# Tooling scratch
+.playwright-mcp/
+
+# Supabase CLI local state
+supabase/.branches/
+supabase/.temp/

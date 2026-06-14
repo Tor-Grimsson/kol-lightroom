@@ -1,0 +1,74 @@
+/**
+ * @kol/theme — Canonical neutral surface base (shared)
+ *
+ * The brand-NEUTRAL tokens that are identical across apps/web and apps/brand:
+ * the surface elevation tiers and theme-invariant absolutes. These are the real
+ * drift surface (page bg/fg colors) and they carry no brand identity, so they
+ * are safe to share as the single canonical source — kolkrabbi and any
+ * scaffolded client render on the same surface base.
+ *
+ * Deliberately NOT here: accent (kolkrabbi yellow in web; neutral-ink default +
+ * brand-layer rebind in brand), fonts, and brand color primitives — those are
+ * brand-specific and stay with each app's own theme layer.
+ *
+ * Plain :root (not @theme): these tokens aren't in Tailwind's --color-*
+ * namespace, so they generate no utilities either way — consumed as
+ * var(--kol-surface-*) by hand-written utilities + components in both apps.
+ * Dark selector matches brand's mechanism: [data-theme="dark"], .dark.
+ */
+
+:root {
+  /* Absolutes (theme-invariant) */
+  --kol-color-absolute-white: #ffffff;
+  --kol-color-absolute-black: #000000;
+
+  /* Surface tiers (page-level) — Light Mode (default) */
+  --kol-surface-primary: #fafafa;
+  --kol-surface-on-primary: #121215;
+
+  --kol-surface-secondary: #f2f2f2;
+  --kol-surface-on-secondary: #19191d;
+
+  --kol-surface-tertiary: #ffffff;
+  --kol-surface-on-tertiary: #0e0e11;
+
+  --kol-surface-inverse: #0e0e11;
+  --kol-surface-on-inverse: #fcfbf8;
+
+  --kol-surface-secondary-inverse: #212121;
+  --kol-surface-tertiary-inverse: #424242;
+
+  --kol-surface-contrast: #f2f2f2;
+
+  /* Surface split tokens */
+  --kol-surface-support-split: #eeeeee;
+  --kol-surface-support-split-inverse: #202026;
+  --kol-surface-absolute-split: #ffffff;
+  --kol-surface-absolute-split-inverse: #000000;
+}
+
+/* Dark Mode — surface overrides */
+:is([data-theme="dark"], .dark) {
+  --kol-surface-primary: #121215;
+  --kol-surface-on-primary: #fafafa;
+
+  --kol-surface-secondary: #19191d;
+  --kol-surface-on-secondary: #f8f8f8;
+
+  --kol-surface-tertiary: #0e0e11;
+  --kol-surface-on-tertiary: #ffffff;
+
+  --kol-surface-inverse: #fcfbf8;
+  --kol-surface-on-inverse: #0e0e11;
+
+  --kol-surface-secondary-inverse: #e0e0e0;
+  --kol-surface-tertiary-inverse: #d4d4d8;
+
+  --kol-surface-contrast: #0b0b0c;
+
+  /* Surface split tokens - Dark Mode */
+  --kol-surface-support-split: #202026;
+  --kol-surface-support-split-inverse: #eeeeee;
+  --kol-surface-absolute-split: #000000;
+  --kol-surface-absolute-split-inverse: #ffffff;
+}

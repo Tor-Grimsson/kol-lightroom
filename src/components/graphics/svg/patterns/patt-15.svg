@@ -1,0 +1,194 @@
+<svg width="256" height="256" viewBox="0 0 256 256" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect x="214.707" y="29.3247" width="9.95671" height="24.6753" stroke="currentColor" stroke-width="0.5"/>
+<path d="M229.645 29.3247H214.709V66.3377" stroke="currentColor" stroke-width="0.5"/>
+<rect x="209.73" y="16.99" width="19.9106" height="49.3474" stroke="currentColor" stroke-width="0.5"/>
+<path d="M214.709 16.9871V29.3247H209.73" stroke="currentColor" stroke-width="0.5"/>
+<rect x="234.625" y="78.6753" width="9.95671" height="24.6753" transform="rotate(180 234.625 78.6753)" stroke="currentColor" stroke-width="0.5"/>
+<path d="M219.688 78.6753H234.623V41.6623" stroke="currentColor" stroke-width="0.5"/>
+<rect x="239.602" y="91.01" width="19.9106" height="49.3474" transform="rotate(180 239.602 91.01)" stroke="currentColor" stroke-width="0.5"/>
+<path d="M234.623 91.0129V78.6753H239.602" stroke="currentColor" stroke-width="0.5"/>
+<rect x="214.707" y="89.3247" width="9.95671" height="24.6753" stroke="currentColor" stroke-width="0.5"/>
+<path d="M229.645 89.3247H214.709V126.338" stroke="currentColor" stroke-width="0.5"/>
+<rect x="209.73" y="76.99" width="19.9106" height="49.3474" stroke="currentColor" stroke-width="0.5"/>
+<path d="M214.709 76.9871V89.3247H209.73" stroke="currentColor" stroke-width="0.5"/>
+<rect x="234.625" y="138.675" width="9.95671" height="24.6753" transform="rotate(180 234.625 138.675)" stroke="currentColor" stroke-width="0.5"/>
+<path d="M219.688 138.675H234.623V101.662" stroke="currentColor" stroke-width="0.5"/>
+<rect x="239.602" y="151.01" width="19.9106" height="49.3474" transform="rotate(180 239.602 151.01)" stroke="currentColor" stroke-width="0.5"/>
+<path d="M234.623 151.013V138.675H239.602" stroke="currentColor" stroke-width="0.5"/>
+<rect width="9.95671" height="24.6753" transform="matrix(1 0 0 -1 176.039 138.675)" stroke="currentColor" stroke-width="0.5"/>
+<path d="M190.977 138.675H176.042V101.662" stroke="currentColor" stroke-width="0.5"/>
+<rect width="19.9106" height="49.3474" transform="matrix(1 0 0 -1 171.062 151.01)" stroke="currentColor" stroke-width="0.5"/>
+<path d="M176.041 151.013V138.675H171.062" stroke="currentColor" stroke-width="0.5"/>
+<rect width="9.95671" height="24.6753" transform="matrix(-1 0 0 1 195.957 89.3247)" stroke="currentColor" stroke-width="0.5"/>
+<path d="M181.02 89.3247H195.955V126.338" stroke="currentColor" stroke-width="0.5"/>
+<rect width="19.9106" height="49.3474" transform="matrix(-1 0 0 1 200.934 76.99)" stroke="currentColor" stroke-width="0.5"/>
+<path d="M195.955 76.9871V89.3247H200.934" stroke="currentColor" stroke-width="0.5"/>
+<rect width="9.95671" height="24.6753" transform="matrix(1 0 0 -1 176.039 78.6753)" stroke="currentColor" stroke-width="0.5"/>
+<path d="M190.977 78.6753H176.042V41.6623" stroke="currentColor" stroke-width="0.5"/>
+<rect width="19.9106" height="49.3474" transform="matrix(1 0 0 -1 171.062 91.01)" stroke="currentColor" stroke-width="0.5"/>
+<path d="M176.041 91.0129V78.6753H171.062" stroke="currentColor" stroke-width="0.5"/>
+<rect width="9.95671" height="24.6753" transform="matrix(-1 0 0 1 195.957 29.3247)" stroke="currentColor" stroke-width="0.5"/>
+<path d="M181.02 29.3247H195.955V66.3377" stroke="currentColor" stroke-width="0.5"/>
+<rect width="19.9106" height="49.3474" transform="matrix(-1 0 0 1 200.934 16.99)" stroke="currentColor" stroke-width="0.5"/>
+<path d="M195.955 16.9871V29.3247H200.934" stroke="currentColor" stroke-width="0.5"/>
+<rect x="137.375" y="29.3247" width="9.95671" height="24.6753" stroke="currentColor" stroke-width="0.5"/>
+<path d="M152.312 29.3247H137.377V66.3377" stroke="currentColor" stroke-width="0.5"/>
+<rect x="132.398" y="16.99" width="19.9106" height="49.3474" stroke="currentColor" stroke-width="0.5"/>
+<path d="M137.377 16.9871V29.3247H132.398" stroke="currentColor" stroke-width="0.5"/>
+<rect x="157.293" y="78.6753" width="9.95671" height="24.6753" transform="rotate(180 157.293 78.6753)" stroke="currentColor" stroke-width="0.5"/>
+<path d="M142.355 78.6753H157.291V41.6623" stroke="currentColor" stroke-width="0.5"/>
+<rect x="162.27" y="91.01" width="19.9106" height="49.3474" transform="rotate(180 162.27 91.01)" stroke="currentColor" stroke-width="0.5"/>
+<path d="M157.291 91.0129V78.6753H162.27" stroke="currentColor" stroke-width="0.5"/>
+<rect x="137.375" y="89.3247" width="9.95671" height="24.6753" stroke="currentColor" stroke-width="0.5"/>
+<path d="M152.312 89.3247H137.377V126.338" stroke="currentColor" stroke-width="0.5"/>
+<rect x="132.398" y="76.99" width="19.9106" height="49.3474" stroke="currentColor" stroke-width="0.5"/>
+<path d="M137.377 76.9871V89.3247H132.398" stroke="currentColor" stroke-width="0.5"/>
+<rect x="157.293" y="138.675" width="9.95671" height="24.6753" transform="rotate(180 157.293 138.675)" stroke="currentColor" stroke-width="0.5"/>
+<path d="M142.355 138.675H157.291V101.662" stroke="currentColor" stroke-width="0.5"/>
+<rect x="162.27" y="151.01" width="19.9106" height="49.3474" transform="rotate(180 162.27 151.01)" stroke="currentColor" stroke-width="0.5"/>
+<path d="M157.291 151.013V138.675H162.27" stroke="currentColor" stroke-width="0.5"/>
+<rect width="9.95671" height="24.6753" transform="matrix(1 0 0 -1 98.707 138.675)" stroke="currentColor" stroke-width="0.5"/>
+<path d="M113.645 138.675H98.7095V101.662" stroke="currentColor" stroke-width="0.5"/>
+<rect width="19.9106" height="49.3474" transform="matrix(1 0 0 -1 93.7305 151.01)" stroke="currentColor" stroke-width="0.5"/>
+<path d="M98.7088 151.013V138.675H93.7305" stroke="currentColor" stroke-width="0.5"/>
+<rect width="9.95671" height="24.6753" transform="matrix(-1 0 0 1 118.625 89.3247)" stroke="currentColor" stroke-width="0.5"/>
+<path d="M103.688 89.3247H118.623V126.338" stroke="currentColor" stroke-width="0.5"/>
+<rect width="19.9106" height="49.3474" transform="matrix(-1 0 0 1 123.602 76.99)" stroke="currentColor" stroke-width="0.5"/>
+<path d="M118.623 76.9871V89.3247H123.602" stroke="currentColor" stroke-width="0.5"/>
+<rect width="9.95671" height="24.6753" transform="matrix(1 0 0 -1 98.707 78.6753)" stroke="currentColor" stroke-width="0.5"/>
+<path d="M113.645 78.6753H98.7095V41.6623" stroke="currentColor" stroke-width="0.5"/>
+<rect width="19.9106" height="49.3474" transform="matrix(1 0 0 -1 93.7305 91.01)" stroke="currentColor" stroke-width="0.5"/>
+<path d="M98.7088 91.0129V78.6753H93.7305" stroke="currentColor" stroke-width="0.5"/>
+<rect width="9.95671" height="24.6753" transform="matrix(-1 0 0 1 118.625 29.3247)" stroke="currentColor" stroke-width="0.5"/>
+<path d="M103.688 29.3247H118.623V66.3377" stroke="currentColor" stroke-width="0.5"/>
+<rect width="19.9106" height="49.3474" transform="matrix(-1 0 0 1 123.602 16.99)" stroke="currentColor" stroke-width="0.5"/>
+<path d="M118.623 16.9871V29.3247H123.602" stroke="currentColor" stroke-width="0.5"/>
+<rect x="60.0391" y="29.3247" width="9.95671" height="24.6753" stroke="currentColor" stroke-width="0.5"/>
+<path d="M74.9766 29.3247H60.0415V66.3377" stroke="currentColor" stroke-width="0.5"/>
+<rect x="55.0625" y="16.99" width="19.9106" height="49.3474" stroke="currentColor" stroke-width="0.5"/>
+<path d="M60.0409 16.9871V29.3247H55.0625" stroke="currentColor" stroke-width="0.5"/>
+<rect x="79.957" y="78.6753" width="9.95671" height="24.6753" transform="rotate(180 79.957 78.6753)" stroke="currentColor" stroke-width="0.5"/>
+<path d="M65.0195 78.6753H79.9546V41.6623" stroke="currentColor" stroke-width="0.5"/>
+<rect x="84.9336" y="91.01" width="19.9106" height="49.3474" transform="rotate(180 84.9336 91.01)" stroke="currentColor" stroke-width="0.5"/>
+<path d="M79.9552 91.0129V78.6753H84.9336" stroke="currentColor" stroke-width="0.5"/>
+<rect x="60.0391" y="89.3247" width="9.95671" height="24.6753" stroke="currentColor" stroke-width="0.5"/>
+<path d="M74.9766 89.3247H60.0415V126.338" stroke="currentColor" stroke-width="0.5"/>
+<rect x="55.0625" y="76.99" width="19.9106" height="49.3474" stroke="currentColor" stroke-width="0.5"/>
+<path d="M60.0409 76.9871V89.3247H55.0625" stroke="currentColor" stroke-width="0.5"/>
+<rect x="79.957" y="138.675" width="9.95671" height="24.6753" transform="rotate(180 79.957 138.675)" stroke="currentColor" stroke-width="0.5"/>
+<path d="M65.0195 138.675H79.9546V101.662" stroke="currentColor" stroke-width="0.5"/>
+<rect x="84.9336" y="151.01" width="19.9106" height="49.3474" transform="rotate(180 84.9336 151.01)" stroke="currentColor" stroke-width="0.5"/>
+<path d="M79.9552 151.013V138.675H84.9336" stroke="currentColor" stroke-width="0.5"/>
+<rect width="9.95671" height="24.6753" transform="matrix(1 0 0 -1 21.375 138.675)" stroke="currentColor" stroke-width="0.5"/>
+<path d="M36.3125 138.675H21.3774V101.662" stroke="currentColor" stroke-width="0.5"/>
+<rect width="19.9106" height="49.3474" transform="matrix(1 0 0 -1 16.3984 151.01)" stroke="currentColor" stroke-width="0.5"/>
+<path d="M21.3768 151.013V138.675H16.3984" stroke="currentColor" stroke-width="0.5"/>
+<rect width="9.95671" height="24.6753" transform="matrix(-1 0 0 1 41.293 89.3247)" stroke="currentColor" stroke-width="0.5"/>
+<path d="M26.3555 89.3247H41.2905V126.338" stroke="currentColor" stroke-width="0.5"/>
+<rect width="19.9106" height="49.3474" transform="matrix(-1 0 0 1 46.2695 76.99)" stroke="currentColor" stroke-width="0.5"/>
+<path d="M41.2912 76.9871V89.3247H46.2695" stroke="currentColor" stroke-width="0.5"/>
+<rect width="9.95671" height="24.6753" transform="matrix(1 0 0 -1 21.375 78.6753)" stroke="currentColor" stroke-width="0.5"/>
+<path d="M36.3125 78.6753H21.3774V41.6623" stroke="currentColor" stroke-width="0.5"/>
+<rect width="19.9106" height="49.3474" transform="matrix(1 0 0 -1 16.3984 91.01)" stroke="currentColor" stroke-width="0.5"/>
+<path d="M21.3768 91.0129V78.6753H16.3984" stroke="currentColor" stroke-width="0.5"/>
+<rect width="9.95671" height="24.6753" transform="matrix(-1 0 0 1 41.293 29.3247)" stroke="currentColor" stroke-width="0.5"/>
+<path d="M26.3555 29.3247H41.2905V66.3377" stroke="currentColor" stroke-width="0.5"/>
+<rect width="19.9106" height="49.3474" transform="matrix(-1 0 0 1 46.2695 16.99)" stroke="currentColor" stroke-width="0.5"/>
+<path d="M41.2912 16.9871V29.3247H46.2695" stroke="currentColor" stroke-width="0.5"/>
+<rect width="9.95671" height="24.6753" transform="matrix(1 0 0 -1 214.707 226.675)" stroke="currentColor" stroke-width="0.5"/>
+<path d="M229.645 226.675H214.709V189.662" stroke="currentColor" stroke-width="0.5"/>
+<rect width="19.9106" height="49.3473" transform="matrix(1 0 0 -1 209.73 239.01)" stroke="currentColor" stroke-width="0.5"/>
+<path d="M214.709 239.013V226.675H209.73" stroke="currentColor" stroke-width="0.5"/>
+<rect width="9.95671" height="24.6753" transform="matrix(-1 0 0 1 234.625 177.325)" stroke="currentColor" stroke-width="0.5"/>
+<path d="M219.688 177.325H234.623V214.338" stroke="currentColor" stroke-width="0.5"/>
+<rect width="19.9106" height="49.3473" transform="matrix(-1 0 0 1 239.602 164.99)" stroke="currentColor" stroke-width="0.5"/>
+<path d="M234.623 164.987V177.325H239.602" stroke="currentColor" stroke-width="0.5"/>
+<rect width="9.95671" height="24.6753" transform="matrix(1 0 0 -1 214.707 166.675)" stroke="currentColor" stroke-width="0.5"/>
+<path d="M229.645 166.675H214.709V129.662" stroke="currentColor" stroke-width="0.5"/>
+<rect width="19.9106" height="49.3473" transform="matrix(1 0 0 -1 209.73 179.01)" stroke="currentColor" stroke-width="0.5"/>
+<path d="M214.709 179.013V166.675H209.73" stroke="currentColor" stroke-width="0.5"/>
+<rect width="9.95671" height="24.6753" transform="matrix(-1 0 0 1 234.625 117.325)" stroke="currentColor" stroke-width="0.5"/>
+<path d="M219.688 117.325H234.623V154.338" stroke="currentColor" stroke-width="0.5"/>
+<rect width="19.9106" height="49.3473" transform="matrix(-1 0 0 1 239.602 104.99)" stroke="currentColor" stroke-width="0.5"/>
+<path d="M234.623 104.987V117.325H239.602" stroke="currentColor" stroke-width="0.5"/>
+<rect x="176.039" y="117.325" width="9.95671" height="24.6753" stroke="currentColor" stroke-width="0.5"/>
+<path d="M190.977 117.325H176.041V154.338" stroke="currentColor" stroke-width="0.5"/>
+<rect x="171.062" y="104.99" width="19.9106" height="49.3473" stroke="currentColor" stroke-width="0.5"/>
+<path d="M176.041 104.987V117.325H171.062" stroke="currentColor" stroke-width="0.5"/>
+<rect x="195.957" y="166.675" width="9.95671" height="24.6753" transform="rotate(180 195.957 166.675)" stroke="currentColor" stroke-width="0.5"/>
+<path d="M181.02 166.675H195.955V129.662" stroke="currentColor" stroke-width="0.5"/>
+<rect x="200.934" y="179.01" width="19.9106" height="49.3473" transform="rotate(180 200.934 179.01)" stroke="currentColor" stroke-width="0.5"/>
+<path d="M195.955 179.013V166.675H200.934" stroke="currentColor" stroke-width="0.5"/>
+<rect x="176.039" y="177.325" width="9.95671" height="24.6753" stroke="currentColor" stroke-width="0.5"/>
+<path d="M190.977 177.325H176.041V214.338" stroke="currentColor" stroke-width="0.5"/>
+<rect x="171.062" y="164.99" width="19.9106" height="49.3473" stroke="currentColor" stroke-width="0.5"/>
+<path d="M176.041 164.987V177.325H171.062" stroke="currentColor" stroke-width="0.5"/>
+<rect x="195.957" y="226.675" width="9.95671" height="24.6753" transform="rotate(180 195.957 226.675)" stroke="currentColor" stroke-width="0.5"/>
+<path d="M181.02 226.675H195.955V189.662" stroke="currentColor" stroke-width="0.5"/>
+<rect x="200.934" y="239.01" width="19.9106" height="49.3473" transform="rotate(180 200.934 239.01)" stroke="currentColor" stroke-width="0.5"/>
+<path d="M195.955 239.013V226.675H200.934" stroke="currentColor" stroke-width="0.5"/>
+<rect width="9.95671" height="24.6753" transform="matrix(1 0 0 -1 137.375 226.675)" stroke="currentColor" stroke-width="0.5"/>
+<path d="M152.312 226.675H137.377V189.662" stroke="currentColor" stroke-width="0.5"/>
+<rect width="19.9106" height="49.3473" transform="matrix(1 0 0 -1 132.398 239.01)" stroke="currentColor" stroke-width="0.5"/>
+<path d="M137.377 239.013V226.675H132.398" stroke="currentColor" stroke-width="0.5"/>
+<rect width="9.95671" height="24.6753" transform="matrix(-1 0 0 1 157.293 177.325)" stroke="currentColor" stroke-width="0.5"/>
+<path d="M142.355 177.325H157.291V214.338" stroke="currentColor" stroke-width="0.5"/>
+<rect width="19.9106" height="49.3473" transform="matrix(-1 0 0 1 162.27 164.99)" stroke="currentColor" stroke-width="0.5"/>
+<path d="M157.291 164.987V177.325H162.27" stroke="currentColor" stroke-width="0.5"/>
+<rect width="9.95671" height="24.6753" transform="matrix(1 0 0 -1 137.375 166.675)" stroke="currentColor" stroke-width="0.5"/>
+<path d="M152.312 166.675H137.377V129.662" stroke="currentColor" stroke-width="0.5"/>
+<rect width="19.9106" height="49.3473" transform="matrix(1 0 0 -1 132.398 179.01)" stroke="currentColor" stroke-width="0.5"/>
+<path d="M137.377 179.013V166.675H132.398" stroke="currentColor" stroke-width="0.5"/>
+<rect width="9.95671" height="24.6753" transform="matrix(-1 0 0 1 157.293 117.325)" stroke="currentColor" stroke-width="0.5"/>
+<path d="M142.355 117.325H157.291V154.338" stroke="currentColor" stroke-width="0.5"/>
+<rect width="19.9106" height="49.3473" transform="matrix(-1 0 0 1 162.27 104.99)" stroke="currentColor" stroke-width="0.5"/>
+<path d="M157.291 104.987V117.325H162.27" stroke="currentColor" stroke-width="0.5"/>
+<rect x="98.707" y="117.325" width="9.95671" height="24.6753" stroke="currentColor" stroke-width="0.5"/>
+<path d="M113.645 117.325H98.7095V154.338" stroke="currentColor" stroke-width="0.5"/>
+<rect x="93.7305" y="104.99" width="19.9106" height="49.3473" stroke="currentColor" stroke-width="0.5"/>
+<path d="M98.7088 104.987V117.325H93.7305" stroke="currentColor" stroke-width="0.5"/>
+<rect x="118.625" y="166.675" width="9.95671" height="24.6753" transform="rotate(180 118.625 166.675)" stroke="currentColor" stroke-width="0.5"/>
+<path d="M103.688 166.675H118.623V129.662" stroke="currentColor" stroke-width="0.5"/>
+<rect x="123.602" y="179.01" width="19.9106" height="49.3473" transform="rotate(180 123.602 179.01)" stroke="currentColor" stroke-width="0.5"/>
+<path d="M118.623 179.013V166.675H123.602" stroke="currentColor" stroke-width="0.5"/>
+<rect x="98.707" y="177.325" width="9.95671" height="24.6753" stroke="currentColor" stroke-width="0.5"/>
+<path d="M113.645 177.325H98.7095V214.338" stroke="currentColor" stroke-width="0.5"/>
+<rect x="93.7305" y="164.99" width="19.9106" height="49.3473" stroke="currentColor" stroke-width="0.5"/>
+<path d="M98.7088 164.987V177.325H93.7305" stroke="currentColor" stroke-width="0.5"/>
+<rect x="118.625" y="226.675" width="9.95671" height="24.6753" transform="rotate(180 118.625 226.675)" stroke="currentColor" stroke-width="0.5"/>
+<path d="M103.688 226.675H118.623V189.662" stroke="currentColor" stroke-width="0.5"/>
+<rect x="123.602" y="239.01" width="19.9106" height="49.3473" transform="rotate(180 123.602 239.01)" stroke="currentColor" stroke-width="0.5"/>
+<path d="M118.623 239.013V226.675H123.602" stroke="currentColor" stroke-width="0.5"/>
+<rect width="9.95671" height="24.6753" transform="matrix(1 0 0 -1 60.0391 226.675)" stroke="currentColor" stroke-width="0.5"/>
+<path d="M74.9766 226.675H60.0415V189.662" stroke="currentColor" stroke-width="0.5"/>
+<rect width="19.9106" height="49.3473" transform="matrix(1 0 0 -1 55.0625 239.01)" stroke="currentColor" stroke-width="0.5"/>
+<path d="M60.0409 239.013V226.675H55.0625" stroke="currentColor" stroke-width="0.5"/>
+<rect width="9.95671" height="24.6753" transform="matrix(-1 0 0 1 79.957 177.325)" stroke="currentColor" stroke-width="0.5"/>
+<path d="M65.0195 177.325H79.9546V214.338" stroke="currentColor" stroke-width="0.5"/>
+<rect width="19.9106" height="49.3473" transform="matrix(-1 0 0 1 84.9336 164.99)" stroke="currentColor" stroke-width="0.5"/>
+<path d="M79.9552 164.987V177.325H84.9336" stroke="currentColor" stroke-width="0.5"/>
+<rect width="9.95671" height="24.6753" transform="matrix(1 0 0 -1 60.0391 166.675)" stroke="currentColor" stroke-width="0.5"/>
+<path d="M74.9766 166.675H60.0415V129.662" stroke="currentColor" stroke-width="0.5"/>
+<rect width="19.9106" height="49.3473" transform="matrix(1 0 0 -1 55.0625 179.01)" stroke="currentColor" stroke-width="0.5"/>
+<path d="M60.0409 179.013V166.675H55.0625" stroke="currentColor" stroke-width="0.5"/>
+<rect width="9.95671" height="24.6753" transform="matrix(-1 0 0 1 79.957 117.325)" stroke="currentColor" stroke-width="0.5"/>
+<path d="M65.0195 117.325H79.9546V154.338" stroke="currentColor" stroke-width="0.5"/>
+<rect width="19.9106" height="49.3473" transform="matrix(-1 0 0 1 84.9336 104.99)" stroke="currentColor" stroke-width="0.5"/>
+<path d="M79.9552 104.987V117.325H84.9336" stroke="currentColor" stroke-width="0.5"/>
+<rect x="21.375" y="117.325" width="9.95671" height="24.6753" stroke="currentColor" stroke-width="0.5"/>
+<path d="M36.3125 117.325H21.3774V154.338" stroke="currentColor" stroke-width="0.5"/>
+<rect x="16.3984" y="104.99" width="19.9106" height="49.3473" stroke="currentColor" stroke-width="0.5"/>
+<path d="M21.3768 104.987V117.325H16.3984" stroke="currentColor" stroke-width="0.5"/>
+<rect x="41.293" y="166.675" width="9.95671" height="24.6753" transform="rotate(180 41.293 166.675)" stroke="currentColor" stroke-width="0.5"/>
+<path d="M26.3555 166.675H41.2905V129.662" stroke="currentColor" stroke-width="0.5"/>
+<rect x="46.2695" y="179.01" width="19.9106" height="49.3473" transform="rotate(180 46.2695 179.01)" stroke="currentColor" stroke-width="0.5"/>
+<path d="M41.2912 179.013V166.675H46.2695" stroke="currentColor" stroke-width="0.5"/>
+<rect x="21.375" y="177.325" width="9.95671" height="24.6753" stroke="currentColor" stroke-width="0.5"/>
+<path d="M36.3125 177.325H21.3774V214.338" stroke="currentColor" stroke-width="0.5"/>
+<rect x="16.3984" y="164.99" width="19.9106" height="49.3473" stroke="currentColor" stroke-width="0.5"/>
+<path d="M21.3768 164.987V177.325H16.3984" stroke="currentColor" stroke-width="0.5"/>
+<rect x="41.293" y="226.675" width="9.95671" height="24.6753" transform="rotate(180 41.293 226.675)" stroke="currentColor" stroke-width="0.5"/>
+<path d="M26.3555 226.675H41.2905V189.662" stroke="currentColor" stroke-width="0.5"/>
+<rect x="46.2695" y="239.01" width="19.9106" height="49.3473" transform="rotate(180 46.2695 239.01)" stroke="currentColor" stroke-width="0.5"/>
+<path d="M41.2912 239.013V226.675H46.2695" stroke="currentColor" stroke-width="0.5"/>
+</svg>

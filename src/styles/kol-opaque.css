@@ -1,0 +1,203 @@
+/**
+ * kol-opaque.css — Opaque neutral scale (KOL tier)
+ *
+ * The SOLID mirror of kol-opacity.css. Same 14 stops, same source ink — the
+ * only difference is what the ink is mixed INTO:
+ *
+ *   fg  →  color-mix(ink X%, transparent)   — alpha foreground; bg bleeds through
+ *   oq  →  color-mix(ink X%, surface)        — opaque neutral; flattened onto surface
+ *
+ * Use `oq` when you need an OPAQUE grey (cover layer, chip over a photo, any
+ * fill that must hide what's behind it). Use `fg` when you want the foreground
+ * tinting a transparent layer. They are different primitives — `oq` is not a
+ * transparency, it is a baked grey.
+ *
+ * Auto-themes for free: --kol-surface-on-primary and --kol-surface-primary both
+ * flip in dark mode, so color-mix recomputes. No hardcoded light/dark blocks.
+ *
+ * Scale: 01, 02, 04, 08, 12, 16, 24, 32, 40, 48, 64, 80, 88, 96 (14 stops)
+ *
+ * Tier pairs:
+ * - Standard (ink-on-primary flattened onto --kol-surface-primary)
+ * - Inverse  (ink-on-inverse flattened onto --kol-surface-inverse)
+ *
+ * Layers:
+ * - Tokens (--kol-oq-*, --kol-oq-inverse-*) for use in CSS rules
+ * - Classes (.bg-oq-*, .text-oq-*, .border-oq-* + inverse + hover) for JSX
+ */
+
+:root {
+  /* ============================================================================
+   * TOKENS — Standard tier (ink-on-primary, flattened onto primary surface)
+   * ============================================================================ */
+
+  --kol-oq-01: color-mix(in srgb, var(--kol-surface-on-primary) 1%, var(--kol-surface-primary));
+  --kol-oq-02: color-mix(in srgb, var(--kol-surface-on-primary) 2%, var(--kol-surface-primary));
+  --kol-oq-04: color-mix(in srgb, var(--kol-surface-on-primary) 4%, var(--kol-surface-primary));
+  --kol-oq-08: color-mix(in srgb, var(--kol-surface-on-primary) 8%, var(--kol-surface-primary));
+  --kol-oq-12: color-mix(in srgb, var(--kol-surface-on-primary) 12%, var(--kol-surface-primary));
+  --kol-oq-16: color-mix(in srgb, var(--kol-surface-on-primary) 16%, var(--kol-surface-primary));
+  --kol-oq-24: color-mix(in srgb, var(--kol-surface-on-primary) 24%, var(--kol-surface-primary));
+  --kol-oq-32: color-mix(in srgb, var(--kol-surface-on-primary) 32%, var(--kol-surface-primary));
+  --kol-oq-40: color-mix(in srgb, var(--kol-surface-on-primary) 40%, var(--kol-surface-primary));
+  --kol-oq-48: color-mix(in srgb, var(--kol-surface-on-primary) 48%, var(--kol-surface-primary));
+  --kol-oq-64: color-mix(in srgb, var(--kol-surface-on-primary) 64%, var(--kol-surface-primary));
+  --kol-oq-80: color-mix(in srgb, var(--kol-surface-on-primary) 80%, var(--kol-surface-primary));
+  --kol-oq-88: color-mix(in srgb, var(--kol-surface-on-primary) 88%, var(--kol-surface-primary));
+  --kol-oq-96: color-mix(in srgb, var(--kol-surface-on-primary) 96%, var(--kol-surface-primary));
+
+  /* ============================================================================
+   * TOKENS — Inverse tier (ink-on-inverse, flattened onto inverse surface)
+   * ============================================================================ */
+
+  --kol-oq-inverse-01: color-mix(in srgb, var(--kol-surface-on-inverse) 1%, var(--kol-surface-inverse));
+  --kol-oq-inverse-02: color-mix(in srgb, var(--kol-surface-on-inverse) 2%, var(--kol-surface-inverse));
+  --kol-oq-inverse-04: color-mix(in srgb, var(--kol-surface-on-inverse) 4%, var(--kol-surface-inverse));
+  --kol-oq-inverse-08: color-mix(in srgb, var(--kol-surface-on-inverse) 8%, var(--kol-surface-inverse));
+  --kol-oq-inverse-12: color-mix(in srgb, var(--kol-surface-on-inverse) 12%, var(--kol-surface-inverse));
+  --kol-oq-inverse-16: color-mix(in srgb, var(--kol-surface-on-inverse) 16%, var(--kol-surface-inverse));
+  --kol-oq-inverse-24: color-mix(in srgb, var(--kol-surface-on-inverse) 24%, var(--kol-surface-inverse));
+  --kol-oq-inverse-32: color-mix(in srgb, var(--kol-surface-on-inverse) 32%, var(--kol-surface-inverse));
+  --kol-oq-inverse-40: color-mix(in srgb, var(--kol-surface-on-inverse) 40%, var(--kol-surface-inverse));
+  --kol-oq-inverse-48: color-mix(in srgb, var(--kol-surface-on-inverse) 48%, var(--kol-surface-inverse));
+  --kol-oq-inverse-64: color-mix(in srgb, var(--kol-surface-on-inverse) 64%, var(--kol-surface-inverse));
+  --kol-oq-inverse-80: color-mix(in srgb, var(--kol-surface-on-inverse) 80%, var(--kol-surface-inverse));
+  --kol-oq-inverse-88: color-mix(in srgb, var(--kol-surface-on-inverse) 88%, var(--kol-surface-inverse));
+  --kol-oq-inverse-96: color-mix(in srgb, var(--kol-surface-on-inverse) 96%, var(--kol-surface-inverse));
+}
+
+/* ==============================================================================
+ * CLASSES — Background opacity (standard + inverse)
+ * ============================================================================== */
+
+.bg-oq-01 { background-color: var(--kol-oq-01); }
+.bg-oq-02 { background-color: var(--kol-oq-02); }
+.bg-oq-04 { background-color: var(--kol-oq-04); }
+.bg-oq-08 { background-color: var(--kol-oq-08); }
+.bg-oq-12 { background-color: var(--kol-oq-12); }
+.bg-oq-16 { background-color: var(--kol-oq-16); }
+.bg-oq-24 { background-color: var(--kol-oq-24); }
+.bg-oq-32 { background-color: var(--kol-oq-32); }
+.bg-oq-40 { background-color: var(--kol-oq-40); }
+.bg-oq-48 { background-color: var(--kol-oq-48); }
+.bg-oq-64 { background-color: var(--kol-oq-64); }
+.bg-oq-80 { background-color: var(--kol-oq-80); }
+.bg-oq-88 { background-color: var(--kol-oq-88); }
+.bg-oq-96 { background-color: var(--kol-oq-96); }
+
+.bg-oq-inverse-01 { background-color: var(--kol-oq-inverse-01); }
+.bg-oq-inverse-02 { background-color: var(--kol-oq-inverse-02); }
+.bg-oq-inverse-04 { background-color: var(--kol-oq-inverse-04); }
+.bg-oq-inverse-08 { background-color: var(--kol-oq-inverse-08); }
+.bg-oq-inverse-12 { background-color: var(--kol-oq-inverse-12); }
+.bg-oq-inverse-16 { background-color: var(--kol-oq-inverse-16); }
+.bg-oq-inverse-24 { background-color: var(--kol-oq-inverse-24); }
+.bg-oq-inverse-32 { background-color: var(--kol-oq-inverse-32); }
+.bg-oq-inverse-40 { background-color: var(--kol-oq-inverse-40); }
+.bg-oq-inverse-48 { background-color: var(--kol-oq-inverse-48); }
+.bg-oq-inverse-64 { background-color: var(--kol-oq-inverse-64); }
+.bg-oq-inverse-80 { background-color: var(--kol-oq-inverse-80); }
+.bg-oq-inverse-88 { background-color: var(--kol-oq-inverse-88); }
+.bg-oq-inverse-96 { background-color: var(--kol-oq-inverse-96); }
+
+/* ==============================================================================
+ * CLASSES — Background hover (standard + inverse)
+ * ============================================================================== */
+
+.hover\:bg-oq-01:hover { background-color: var(--kol-oq-01); }
+.hover\:bg-oq-02:hover { background-color: var(--kol-oq-02); }
+.hover\:bg-oq-04:hover { background-color: var(--kol-oq-04); }
+.hover\:bg-oq-08:hover { background-color: var(--kol-oq-08); }
+.hover\:bg-oq-12:hover { background-color: var(--kol-oq-12); }
+.hover\:bg-oq-16:hover { background-color: var(--kol-oq-16); }
+.hover\:bg-oq-24:hover { background-color: var(--kol-oq-24); }
+.hover\:bg-oq-32:hover { background-color: var(--kol-oq-32); }
+.hover\:bg-oq-40:hover { background-color: var(--kol-oq-40); }
+.hover\:bg-oq-48:hover { background-color: var(--kol-oq-48); }
+.hover\:bg-oq-64:hover { background-color: var(--kol-oq-64); }
+.hover\:bg-oq-80:hover { background-color: var(--kol-oq-80); }
+.hover\:bg-oq-88:hover { background-color: var(--kol-oq-88); }
+.hover\:bg-oq-96:hover { background-color: var(--kol-oq-96); }
+
+.hover\:bg-oq-inverse-01:hover { background-color: var(--kol-oq-inverse-01); }
+.hover\:bg-oq-inverse-02:hover { background-color: var(--kol-oq-inverse-02); }
+.hover\:bg-oq-inverse-04:hover { background-color: var(--kol-oq-inverse-04); }
+.hover\:bg-oq-inverse-08:hover { background-color: var(--kol-oq-inverse-08); }
+.hover\:bg-oq-inverse-12:hover { background-color: var(--kol-oq-inverse-12); }
+.hover\:bg-oq-inverse-16:hover { background-color: var(--kol-oq-inverse-16); }
+.hover\:bg-oq-inverse-24:hover { background-color: var(--kol-oq-inverse-24); }
+.hover\:bg-oq-inverse-32:hover { background-color: var(--kol-oq-inverse-32); }
+.hover\:bg-oq-inverse-40:hover { background-color: var(--kol-oq-inverse-40); }
+.hover\:bg-oq-inverse-48:hover { background-color: var(--kol-oq-inverse-48); }
+.hover\:bg-oq-inverse-64:hover { background-color: var(--kol-oq-inverse-64); }
+.hover\:bg-oq-inverse-80:hover { background-color: var(--kol-oq-inverse-80); }
+.hover\:bg-oq-inverse-88:hover { background-color: var(--kol-oq-inverse-88); }
+.hover\:bg-oq-inverse-96:hover { background-color: var(--kol-oq-inverse-96); }
+
+/* ==============================================================================
+ * CLASSES — Text opacity (standard + inverse)
+ * ============================================================================== */
+
+.text-oq-01 { color: var(--kol-oq-01); }
+.text-oq-02 { color: var(--kol-oq-02); }
+.text-oq-04 { color: var(--kol-oq-04); }
+.text-oq-08 { color: var(--kol-oq-08); }
+.text-oq-12 { color: var(--kol-oq-12); }
+.text-oq-16 { color: var(--kol-oq-16); }
+.text-oq-24 { color: var(--kol-oq-24); }
+.text-oq-32 { color: var(--kol-oq-32); }
+.text-oq-40 { color: var(--kol-oq-40); }
+.text-oq-48 { color: var(--kol-oq-48); }
+.text-oq-64 { color: var(--kol-oq-64); }
+.text-oq-80 { color: var(--kol-oq-80); }
+.text-oq-88 { color: var(--kol-oq-88); }
+.text-oq-96 { color: var(--kol-oq-96); }
+
+.text-oq-inverse-01 { color: var(--kol-oq-inverse-01); }
+.text-oq-inverse-02 { color: var(--kol-oq-inverse-02); }
+.text-oq-inverse-04 { color: var(--kol-oq-inverse-04); }
+.text-oq-inverse-08 { color: var(--kol-oq-inverse-08); }
+.text-oq-inverse-12 { color: var(--kol-oq-inverse-12); }
+.text-oq-inverse-16 { color: var(--kol-oq-inverse-16); }
+.text-oq-inverse-24 { color: var(--kol-oq-inverse-24); }
+.text-oq-inverse-32 { color: var(--kol-oq-inverse-32); }
+.text-oq-inverse-40 { color: var(--kol-oq-inverse-40); }
+.text-oq-inverse-48 { color: var(--kol-oq-inverse-48); }
+.text-oq-inverse-64 { color: var(--kol-oq-inverse-64); }
+.text-oq-inverse-80 { color: var(--kol-oq-inverse-80); }
+.text-oq-inverse-88 { color: var(--kol-oq-inverse-88); }
+.text-oq-inverse-96 { color: var(--kol-oq-inverse-96); }
+
+/* ==============================================================================
+ * CLASSES — Border opacity (standard + inverse)
+ * ============================================================================== */
+
+.border-oq-01 { border-color: var(--kol-oq-01); }
+.border-oq-02 { border-color: var(--kol-oq-02); }
+.border-oq-04 { border-color: var(--kol-oq-04); }
+.border-oq-08 { border-color: var(--kol-oq-08); }
+.border-oq-12 { border-color: var(--kol-oq-12); }
+.border-oq-16 { border-color: var(--kol-oq-16); }
+.border-oq-24 { border-color: var(--kol-oq-24); }
+.border-oq-32 { border-color: var(--kol-oq-32); }
+.border-oq-40 { border-color: var(--kol-oq-40); }
+.border-oq-48 { border-color: var(--kol-oq-48); }
+.border-oq-64 { border-color: var(--kol-oq-64); }
+.border-oq-80 { border-color: var(--kol-oq-80); }
+.border-oq-88 { border-color: var(--kol-oq-88); }
+.border-oq-96 { border-color: var(--kol-oq-96); }
+
+.border-oq-inverse-01 { border-color: var(--kol-oq-inverse-01); }
+.border-oq-inverse-02 { border-color: var(--kol-oq-inverse-02); }
+.border-oq-inverse-04 { border-color: var(--kol-oq-inverse-04); }
+.border-oq-inverse-08 { border-color: var(--kol-oq-inverse-08); }
+.border-oq-inverse-12 { border-color: var(--kol-oq-inverse-12); }
+.border-oq-inverse-16 { border-color: var(--kol-oq-inverse-16); }
+.border-oq-inverse-24 { border-color: var(--kol-oq-inverse-24); }
+.border-oq-inverse-32 { border-color: var(--kol-oq-inverse-32); }
+.border-oq-inverse-40 { border-color: var(--kol-oq-inverse-40); }
+.border-oq-inverse-48 { border-color: var(--kol-oq-inverse-48); }
+.border-oq-inverse-64 { border-color: var(--kol-oq-inverse-64); }
+.border-oq-inverse-80 { border-color: var(--kol-oq-inverse-80); }
+.border-oq-inverse-88 { border-color: var(--kol-oq-inverse-88); }
+.border-oq-inverse-96 { border-color: var(--kol-oq-inverse-96); }

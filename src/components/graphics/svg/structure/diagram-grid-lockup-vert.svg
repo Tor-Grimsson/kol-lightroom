@@ -1,0 +1,25 @@
+<svg width="617" height="289" viewBox="0 0 617 289" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g opacity="0.2">
+<rect width="64" height="64" transform="matrix(-1 0 0 1 616.25 0.25)" fill="currentColor" fill-opacity="0.1"/>
+<rect width="64" height="64" transform="matrix(-1 0 0 1 64.25 0.25)" fill="currentColor" fill-opacity="0.1"/>
+<rect width="64" height="64" transform="matrix(-1 0 0 1 288.25 0.25)" fill="currentColor" fill-opacity="0.1"/>
+<rect width="64" height="64" transform="matrix(-1 0 0 1 616.25 224.25)" fill="currentColor" fill-opacity="0.1"/>
+<rect width="64" height="64" transform="matrix(-1 0 0 1 64.25 224.25)" fill="currentColor" fill-opacity="0.1"/>
+<rect width="64" height="64" transform="matrix(-1 0 0 1 288.25 224.25)" fill="currentColor" fill-opacity="0.1"/>
+<path d="M0.25 132.25H616.25" stroke="white" stroke-width="0.5" stroke-dasharray="6 2"/>
+<path d="M0.25 98.25H616.25" stroke="white" stroke-width="0.5" stroke-dasharray="6 2"/>
+<path d="M0.25 64.25H616.25" stroke="white" stroke-width="0.5" stroke-dasharray="6 2"/>
+<path d="M0.25 190.25H616.25" stroke="white" stroke-width="0.5" stroke-dasharray="6 2"/>
+<path d="M0.25 156.25H616.25" stroke="white" stroke-width="0.5" stroke-dasharray="6 2"/>
+<path d="M0.25 288.25H616.25" stroke="white" stroke-width="0.5" stroke-dasharray="6 2"/>
+<path d="M0.25 224.25H616.25" stroke="white" stroke-width="0.5" stroke-dasharray="6 2"/>
+<path d="M0.25 0.25H616.25" stroke="white" stroke-width="0.5" stroke-dasharray="6 2"/>
+<path d="M616.25 0.25L616.25 288.25" stroke="white" stroke-width="0.5" stroke-dasharray="6 2"/>
+<path d="M552.25 0.25V288.25" stroke="white" stroke-width="0.5" stroke-dasharray="6 2"/>
+<path d="M224.25 0.25V288.25" stroke="white" stroke-width="0.5" stroke-dasharray="6 2"/>
+<path d="M288.25 0.25V288.25" stroke="white" stroke-width="0.5" stroke-dasharray="6 2"/>
+<path d="M256.25 0.25V288.25" stroke="white" stroke-width="0.5" stroke-dasharray="6 2"/>
+<path d="M0.25 0.25L0.250013 288.25" stroke="white" stroke-width="0.5" stroke-dasharray="6 2"/>
+<path d="M64.25 0.25V288.25" stroke="white" stroke-width="0.5" stroke-dasharray="6 2"/>
+</g>
+</svg>

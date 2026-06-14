@@ -1,0 +1,64 @@
+/**
+ * kol-typography-mono.css — Mono typography FONTS + TOKENS (JetBrains Mono).
+ *
+ * @font-face cuts + the --kol-font-family-mono token + the Tailwind font-mono
+ * contract. The .kol-mono-N / .kol-helper-N CLASS rules moved to
+ * kol-type-mono-classes.css (class-only, font-agnostic) so a consumer can adopt
+ * the scale with its own mono font — fonts are per-app (brand = JetBrains Mono,
+ * web = RightGroteskMono). The umbrella kol-theme.css imports both files.
+ *
+ * Italic note: only 500i is bundled (Medium Italic). 400i (Regular Italic)
+ * deferred until a consumer requires it.
+ *
+ * Architecture: docs/kol-migration/locked/typography-system.md
+ */
+
+/* =============================================================================
+ * FONT-FACE — JetBrains Mono (4 weights: 400, 500, 500i, 600)
+ * ============================================================================= */
+
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('/fonts/jetbrains-mono/JetBrainsMono-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('/fonts/jetbrains-mono/JetBrainsMono-Medium.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('/fonts/jetbrains-mono/JetBrainsMono-MediumItalic.woff2') format('woff2');
+  font-weight: 500;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('/fonts/jetbrains-mono/JetBrainsMono-SemiBold.woff2') format('woff2');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* =============================================================================
+ * FAMILY TOKEN + TAILWIND CONTRACT
+ *
+ * .kol-mono-N / .kol-helper-N class rules live in kol-type-mono-classes.css.
+ * ============================================================================= */
+
+:root {
+  --kol-font-family-mono: 'JetBrains Mono', monospace;
+}
+
+@theme {
+  --font-mono: 'JetBrains Mono', monospace;
+}
