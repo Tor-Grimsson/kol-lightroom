@@ -22,7 +22,7 @@ For chronological detail see `session-log/`. For load-bearing decisions see `ARC
 - **Domain:** raw-image editing (NEF/DNG/CR2/TIFF + parametric color-correction layers) on the produce side; high-quality image/video delivery via the kolkrabbi B2 CDN on the publish side.
 - **Platform DECIDED 2026-06-13: pure web** (LibRaw-WASM decode + WebGPU pipeline). Chosen for stack/CDN fit and reversibility — this Vite UI is also a Tauri frontend, so native is a cheap wrap later if WASM perf on big raws ever forces it (ARCH §5). Tauri is the recorded fallback, not the plan.
 - **`/develop` is a working editor (2026-06-14).** Two-tier decode (fast preview + full master), a 15-slider parametric panel (Tone/Color/Detail), a **multi-pass WebGPU pipeline** (tone/color + spatial ops + histogram compute), live histogram, and web-master JPEG export. Verified live on a 51MP DNG. **§5 gate measured:** full-res decode ~7.9s, preview ~2.6s — web NOT abandoned (interactive number is the preview; full-res is export-time). CPU fallback covers tone/color only.
-- **`/library` is a working image catalog (2026-06-14).** Second publish pipeline (ARCH §6): bytes in B2, one **Supabase Postgres** row per image (key + CDN URL, capture metadata, the editor's `edit` op-stack JSONB, tags). `scripts/ingest.mjs` ingests; `/library` is a filterable gallery. Verified end-to-end. **First external backend dependency** — weakens §1 self-containment for this feature only (Library shows an empty state when unconfigured).
+- **`/library` is a working image catalog, LIVE on cloud Supabase (2026-06-14).** Second publish pipeline (ARCH §6): bytes in B2, one **Supabase Postgres** row per image (key + CDN URL, capture metadata, the editor's `edit` op-stack JSONB, tags). `scripts/ingest.mjs` ingests; `/library` is a filterable gallery reading the **cloud project** (`tvuyyybxvfkmgflxvhii`, North EU/Stockholm) via the publishable key. **First external backend dependency** — weakens §1 self-containment for this feature only (Library shows an empty state when unconfigured).
 
 ---
 
@@ -33,11 +33,13 @@ For chronological detail see `session-log/`. For load-bearing decisions see `ARC
 - **`pnpm install` + `pnpm build` pass.** Build emits the decode worker + `libraw.wasm` as assets — the `libraw-wasm` worker/wasm bundling is verified sound.
 - **`/develop` editor — verified live (2026-06-14, real GPU browser):** drag/pick a raw → two-tier decode (preview ~2.6s, full master ~7.9s on a 51MP DNG) → WebGPU render. 15 sliders apply live (Tone/Color on either backend; Detail spatial ops GPU-only). Live RGB histogram (GPU compute + readback). Export web-master JPEG. `Engine: WebGPU | CPU` shown in the readout; CPU is the tone/color-only fallback.
 - **Publish lane is live:** kolkrabbi B2 bucket reachable via the `bucket` CLI (`bucket ls/url/up`). `website/` lane has `art-prints/ asset-library/ data-library/ hls-library/`; `hls-library/` is empty (no video published yet).
-- **Catalog pipeline — verified (2026-06-14):** `images` schema + RLS, `scripts/ingest.mjs` (B2 push + row upsert with service-role key), `/library` gallery. Verified against a real Postgres + PostgREST. **Caveat:** `supabase start` exit-134s on this Docker (the `supabase/postgres` image; plain `postgres:16` is fine) — verification used a plain-pg + PostgREST + tiny gateway-proxy stand-in. Intended local dev is cloud Supabase or a working `supabase start`.
+- **Catalog pipeline — LIVE on cloud Supabase (2026-06-14):** `images` schema + RLS pushed to the cloud project (`tvuyyybxvfkmgflxvhii`); `/library` reads it via the publishable key (`VITE_SUPABASE_PUBLISHABLE_KEY` in `.env.local`) and renders cataloged images with thumbnails + tag filter. `scripts/ingest.mjs` writes rows with the service-role key. **Caveat:** `supabase start` (local stack) exit-134s on this Docker (the `supabase/postgres` image; plain `postgres:16` is fine) — cloud is the path; the prior session's local stand-in is torn down.
 
 ## What's pending
 
-- **Real Supabase project** — create the cloud project (or fix local `supabase start`), point `.env.local` at it, run the migration. Verification used a stand-in stack; production needs real Supabase.
+- **git init + first commit** — `.gitignore` is prepared (excludes `.env.local` + scratch); user runs it. Then optionally push to GitHub (enables the Supabase GitHub integration).
+- **Cloud demo data** — re-ingest rows / clean the 3 paste-dirtied `cdn_url`s; needs the cloud **secret key** (`sb_secret_…`) in `SUPABASE_SERVICE_ROLE_KEY`.
+- **House the Supabase guide** — move `docs/supabase-guide/` → `~/.dotfiles/docs`.
 - **In-app publish (editor → catalog)** — a "Publish" button in `/develop` that exports the master, pushes to B2, and writes the row in-browser (via a Supabase Edge Function minting a B2 presigned URL — no B2 secret in the client). Replaces the local ingest script for the in-app flow.
 - **Editor ↔ catalog round-trip** — "open in develop" from a Library card restores the stored `edit` op-stack (the JSONB column already carries it).
 - **Tone curve + HSL/per-channel color** — next panel sections; the GPU backend carries them cheaply now.
@@ -47,10 +49,12 @@ For chronological detail see `session-log/`. For load-bearing decisions see `ARC
 
 ## Active known issues
 
-- **Decode ~7.9s full-res** on a 51MP DNG (preview ~2.6s). Over the old ~2s gate, but web is NOT abandoned — interactive editing rides the preview, full-res is export-time. Threads (COOP/COEP) only shaved ~1s; the demosaic barely parallelizes. An instant embedded-JPEG preview path was discussed, not built.
+- **Decode ~7.9s full-res, single-threaded** on a 51MP DNG (preview ~2.6s). The COOP/COEP isolation headers (which enabled WASM threads, ~1s gain) were **removed** because they broke cross-origin CDN `<img>` loads across browsers — reliable images won the trade. An instant embedded-JPEG preview path was discussed, not built.
 - **GPU + CPU op math are duplicated** — `gpuRenderer.js` WGSL and `Develop.jsx` `render()` carry the same tone/color stack. Keep them in sync or they drift.
 - **CPU fallback is tone/color only** — Detail (spatial) sliders + histogram are GPU-only (they ride the blur/compute passes) and are hidden when `Engine: CPU`.
-- **CDN export needs cross-origin headers in prod** — the COOP/COEP isolation that enables WASM threads (set in `vite.config.js` dev/preview) must also be sent by the B2/CDN host, or threads degrade there.
+- **No cross-origin isolation** — COOP/COEP headers were removed from `vite.config.js`; CDN `<img>` loads need no special handling. **Do not re-add isolation** without also solving cross-origin image loading (it re-breaks the Library thumbnails).
+- **3 cloud `cdn_url`s are whitespace-dirty** — newlines baked in by the SQL Editor wrapping long lines. The Library strips whitespace from URLs so they render; clean the rows with an `update` when convenient.
+- **git not initialized yet** — user-driven; `.gitignore` is ready.
 - **Latent cascade note** (inherited): `kol-theme.css` imports `kol-components-*` *unlayered*, so component classes outrank Tailwind `utilities` — inline utility overrides of a component class won't win until a `layer(components)` pass.
 
 ---
@@ -65,8 +69,8 @@ For chronological detail see `session-log/`. For load-bearing decisions see `ARC
 | `src/styles/` | all DS CSS (theme barrel + brand color + framework chrome) | `kol-theme.css` imports the rest |
 | `src/pages/Develop.jsx` | the editor: decode + op-stack state + panel UI + CPU fallback render | `ZERO_ADJ`/`TONE`/`COLOR`/`DETAIL` op config; `decode()`, `setSource()` |
 | `src/pages/gpuRenderer.js` | WebGPU backend: multi-pass tone/color + blur + spatial + histogram compute | WGSL shaders; `setImage()`/`render()`; op math mirrors Develop's `render()` |
-| `src/pages/Library.jsx` | `/library` catalog gallery — queries Supabase, grid + tag/text filter | needs `crossOrigin="anonymous"` on CDN `<img>` (cross-origin isolation) |
-| `src/lib/supabase.js` | browser Supabase client (anon key); null when env unset | `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY` |
+| `src/pages/Library.jsx` | `/library` catalog gallery — queries Supabase, grid + tag/text filter | strips whitespace from `cdn_url` (paste-damage guard); plain CDN `<img>` |
+| `src/lib/supabase.js` | browser Supabase client (publishable key); null when env unset | `VITE_SUPABASE_URL` / `VITE_SUPABASE_PUBLISHABLE_KEY` (old `_ANON_KEY` still works) |
 | `scripts/ingest.mjs` | catalog ingest: `bucket up` → B2 + row upsert (service-role key) | reads `SUPABASE_URL` / `SUPABASE_SERVICE_ROLE_KEY` (never `VITE_`) |
 | `supabase/migrations/*` | the `images` schema + RLS + indexes | applied by `supabase start` / `supabase db reset` |
 | `src/components/` | the inlined DS; atomic folders + `framework/` (shell) + `loaders/` (icons) | barrels: `index.js`, `framework/index.js` |
@@ -96,7 +100,7 @@ Decode runs client-side via `libraw-wasm` (Web Worker + WASM). Keep the repo web
 ## Roadmap (prioritized)
 
 1. ~~Milestone 1 live~~ ✓ · ~~WebGPU pipeline~~ ✓ · ~~develop panel + histogram~~ ✓ · ~~catalog pipeline (schema + ingest + /library)~~ ✓ (2026-06-14).
-2. **Real Supabase project** — cloud (or working `supabase start`); point `.env.local`, run the migration.
+2. ~~Real Supabase project~~ ✓ — cloud live (`tvuyyybxvfkmgflxvhii`, North EU). **Next:** `git init` + first commit; re-ingest/clean cloud data; house the Supabase guide in `~/.dotfiles/docs`.
 3. **In-app publish + editor↔catalog round-trip** — Publish button in /develop (Edge Function presigned B2 upload); "open in develop" restores the stored `edit` op-stack.
 4. **Tone curve + HSL/per-channel + masks** — next editor panel sections on the GPU backend.
 5. **Auth** — Supabase Auth gating writes.
@@ -114,7 +118,8 @@ Decode runs client-side via `libraw-wasm` (Web Worker + WASM). Keep the repo web
 - **Edits are parametric op stacks**, not pixel layers (ARCH §5).
 - **GPU and CPU render paths share op math** — `gpuRenderer.js` WGSL ↔ `Develop.jsx` `render()`. Change both together or they drift.
 - **Bytes in B2, rows in the DB** (ARCH §6) — the catalog stores B2 keys + metadata, never image bytes. Schema is backend-agnostic.
-- **Service-role key is Node-only** — never a `VITE_` var (those bundle into the browser). Browser uses the anon key; writes are gated by RLS.
+- **Service-role/secret key is Node-only** — never a `VITE_` var (those bundle into the browser). Browser uses the **publishable key** (`VITE_SUPABASE_PUBLISHABLE_KEY`, formerly "anon"); writes are gated by RLS.
+- **No COOP/COEP cross-origin-isolation headers** — they break cross-origin CDN images. Don't re-add without solving image loading (ARCH §6 prod note / known issues).
 - **`pnpm` is the package manager.**
 
 ---

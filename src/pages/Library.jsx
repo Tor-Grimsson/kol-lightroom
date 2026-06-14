@@ -107,11 +107,14 @@ export default function Library() {
 
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
             {filtered.map((r) => {
-              const hasImg = typeof r.cdn_url === 'string' && r.cdn_url.startsWith('http')
+              // Normalize: URLs can't contain whitespace, so strip any that crept
+              // in (e.g. newlines baked in by a SQL editor wrapping a long value).
+              const url = (r.cdn_url || '').replace(/\s+/g, '')
+              const hasImg = url.startsWith('http')
               return (
                 <a
                   key={r.id}
-                  href={hasImg ? r.cdn_url : undefined}
+                  href={hasImg ? url : undefined}
                   target="_blank"
                   rel="noreferrer"
                   className="group flex flex-col rounded-lg overflow-hidden border border-fg-08 bg-fg-04"
@@ -119,10 +122,9 @@ export default function Library() {
                   <div className="aspect-[3/2] overflow-hidden bg-fg-04">
                     {hasImg ? (
                       <img
-                        src={r.cdn_url}
+                        src={url}
                         alt={r.filename}
                         loading="lazy"
-                        crossOrigin="anonymous"
                         className="w-full h-full object-cover transition-transform group-hover:scale-[1.02]"
                       />
                     ) : (

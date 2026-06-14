@@ -19,21 +19,13 @@ export default defineConfig({
   optimizeDeps: {
     exclude: ['libraw-wasm'],
   },
-  // libraw.wasm is a pthread build. Threads need SharedArrayBuffer, which the
-  // browser only exposes under cross-origin isolation (COOP+COEP). Without these
-  // headers the decode falls back to single-threaded. Mirror them on `preview`
-  // so a prod-style serve behaves the same; the CDN host must send them too.
+  // NOTE: no COOP/COEP cross-origin-isolation headers. They would let
+  // libraw.wasm use threads (~1s faster full decode), but cross-origin isolation
+  // blocks/breaks cross-origin CDN <img> loads inconsistently across browsers —
+  // and loading B2 images is core to the Library. The decode runs single-threaded
+  // (the 2.6s preview path is unaffected); reliable images win. Don't re-add the
+  // headers without also solving cross-origin image loading.
   server: {
     host: true,
-    headers: {
-      'Cross-Origin-Opener-Policy': 'same-origin',
-      'Cross-Origin-Embedder-Policy': 'credentialless',
-    },
-  },
-  preview: {
-    headers: {
-      'Cross-Origin-Opener-Policy': 'same-origin',
-      'Cross-Origin-Embedder-Policy': 'credentialless',
-    },
   },
 })
