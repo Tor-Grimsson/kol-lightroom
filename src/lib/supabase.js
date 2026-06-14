@@ -11,7 +11,9 @@ import { createClient } from '@supabase/supabase-js'
  * project (or the local `supabase start` stack) via .env.local. */
 
 const url = import.meta.env.VITE_SUPABASE_URL
-const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
+// Dashboard → Settings → API calls this the "Publishable key" (sb_publishable_…);
+// Supabase renamed the old "anon key". VITE_SUPABASE_ANON_KEY still works as a fallback.
+const key = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY ?? import.meta.env.VITE_SUPABASE_ANON_KEY
 
-export const supabase = url && anonKey ? createClient(url, anonKey) : null
+export const supabase = url && key ? createClient(url, key) : null
 export const supabaseConfigured = Boolean(supabase)
