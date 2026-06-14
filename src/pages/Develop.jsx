@@ -5,6 +5,7 @@ import Slider from '../components/atoms/Slider.jsx'
 import Divider from '../components/atoms/Divider.jsx'
 import LabeledControl from '../components/molecules/LabeledControl.jsx'
 import { createGpuRenderer } from './gpuRenderer.js'
+import { publishImage, supabaseConfigured } from '../lib/supabase.js'
 
 /* Develop — decode a raw in-browser via LibRaw-WASM, then edit it.
  *
@@ -376,6 +377,47 @@ export default function Develop() {
     )
   }
 
+  // Publish: render the canvas → JPEG, hand it to the `publish` Edge Function,
+  // which uploads the bytes + writes the catalog row (secret stays server-side,
+  // no login). The current op-stack rides along as the row's `edit`.
+  const [publish, setPublish] = useState(null) // null | 'busy' | {ok} | {error}
+  const publishToLibrary = () => {
+    const canvas = canvasRef.current
+    if (!canvas) return
+    setPublish('busy')
+    canvas.toBlob(
+      async (blob) => {
+        if (!blob) return setPublish({ error: 'no image' })
+        try {
+          const image = await publishImage({
+            blob,
+            filename: `${(info?.fileName || 'export').replace(/\.[^.]+$/, '')}-web.jpg`,
+            meta: {
+              width: canvas.width,
+              height: canvas.height,
+              camera: [meta?.camera_make, meta?.camera_model].filter(Boolean).join(' ') || null,
+              iso: meta?.iso_speed ?? null,
+              shutter: meta?.shutter ?? null,
+              aperture: meta?.aperture ?? null,
+              focal_len: meta?.focal_len ?? null,
+              shot_at:
+                meta?.timestamp instanceof Date && !isNaN(meta.timestamp)
+                  ? meta.timestamp.toISOString()
+                  : null,
+            },
+            edit: adj,
+            tags: [],
+          })
+          setPublish({ ok: image.filename })
+        } catch (e) {
+          setPublish({ error: e?.message || String(e) })
+        }
+      },
+      'image/jpeg',
+      0.92,
+    )
+  }
+
   const hasImage = state === 'preview' || state === 'done'
   const busy = state === 'decoding' || state === 'preview'
   const isGpu = backend === 'gpu'
@@ -475,9 +517,34 @@ export default function Develop() {
                   ))}
                 </div>
               ))}
-              <Button variant="primary" size="sm" iconLeft="download" onClick={exportJpeg}>
-                Export web master
-              </Button>
+              <div className="flex flex-col gap-2">
+                <div className="flex gap-2">
+                  <Button variant="secondary" size="sm" iconLeft="download" onClick={exportJpeg}>
+                    Export
+                  </Button>
+                  {supabaseConfigured && (
+                    <Button
+                      variant="primary"
+                      size="sm"
+                      iconLeft="image"
+                      disabled={publish === 'busy'}
+                      onClick={publishToLibrary}
+                    >
+                      {publish === 'busy' ? 'Publishing…' : 'Publish to library'}
+                    </Button>
+                  )}
+                </div>
+                {publish?.ok && (
+                  <span className="kol-mono-12 text-[var(--kol-color-green-400)]">
+                    Published “{publish.ok}” ✓
+                  </span>
+                )}
+                {publish?.error && (
+                  <span className="kol-mono-12 text-[var(--kol-color-red-400)]">
+                    Publish failed: {publish.error}
+                  </span>
+                )}
+              </div>
             </div>
           )}
 

@@ -17,3 +17,26 @@ const key = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY ?? import.meta.env.VIT
 
 export const supabase = url && key ? createClient(url, key) : null
 export const supabaseConfigured = Boolean(supabase)
+
+function blobToBase64(blob) {
+  return new Promise((resolve, reject) => {
+    const r = new FileReader()
+    r.onload = () => resolve(String(r.result).split(',')[1]) // strip the data: prefix
+    r.onerror = reject
+    r.readAsDataURL(blob)
+  })
+}
+
+/* Publish an edited image to the catalog via the `publish` Edge Function.
+ * The function (server-side, secret key) uploads the bytes + writes the row;
+ * the browser never holds the secret and no one logs in. Returns the new row. */
+export async function publishImage({ blob, filename, meta = {}, edit = {}, tags = [] }) {
+  if (!supabase) throw new Error('Supabase not configured')
+  const fileBase64 = await blobToBase64(blob)
+  const { data, error } = await supabase.functions.invoke('publish', {
+    body: { fileBase64, contentType: blob.type || 'image/jpeg', filename, meta, edit, tags },
+  })
+  if (error) throw error
+  if (!data?.ok) throw new Error(data?.error || 'publish failed')
+  return data.image
+}
