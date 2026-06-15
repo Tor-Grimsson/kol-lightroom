@@ -18,3 +18,7 @@ dist/
 # Supabase CLI local state
 supabase/.branches/
 supabase/.temp/
+
+# Tauri (Rust build output)
+src-tauri/target/
+src-tauri/gen/

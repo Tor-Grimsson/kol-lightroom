@@ -66,6 +66,16 @@ RAW (.NEF/.CR2/.DNG/.TIFF)  →  [editor: produce]  →  web derivatives  →  [
 
 The trigger to revisit is the decode→display milestone's measured latency on a large NEF (see AGENT-CONTEXT roadmap). Until that trigger fires, the substrate stays web-only — no `src-tauri/`, no Rust toolchain.
 
+### §5a — Tauri native target ADDED 2026-06-15 (user-authorised)
+
+Both targets now ship from one codebase. The trigger wasn't decode latency — it was **local batch raw work + the filesystem**: a browser's "local" (IndexedDB) is sandboxed, quota-evictable, and can't open/batch a folder of raws. Real desktop photo work needs native.
+
+- **Web target (unchanged):** the cloud/publish/delivery product — deployed to Vercel/`lr.kolkrabbi.io`, Supabase catalog, zero-install, shareable. WASM decode + IndexedDB "local" (a lightweight convenience, not a real library).
+- **Tauri target (new, `src-tauri/`):** the desktop product — native filesystem (open/batch any folder of raws), eventually native decode (rawler/libraw-rs, far faster than WASM), no storage quota, project files on disk. **The Vite UI carries over unchanged** (this was §5's whole reversibility bet): GPU pipeline, op-stack, panels, filmstrip all reused; only the decode + storage layers swap to native.
+- **Not Photoshop.** Parametric op-stacks only (§5), not pixel-layer compositing — that's a different paradigm and a different app. Don't fuse them.
+
+Build order: wrap (web app in a native window) → native file open → native decode → folder batch → project files.
+
 **Edits are parametric, not pixel layers.** When the editor is built, non-destructive adjustments are stored as a serializable op stack (exposure, WB, curves, masks as data), Lightroom-style — not stacked pixel buffers. This is a deliberate design constraint, recorded now so it isn't re-litigated later.
 
 ---
@@ -88,4 +98,4 @@ Opening discussion on any of these requires an explicit user ask:
 - **No link/symlink dependency on kol-monorepo.** Self-contained snapshot only (§1).
 - **No workspace resurrection** — no `pnpm-workspace.yaml`, `packages/`, or `@kol/*` package identities (§1).
 - **No import aliases** standing in for the old `@kol/*` specifiers; relative imports per the reference (§2).
-- **No native/Tauri layer** — no `src-tauri/` crate or Rust toolchain unless §5's measured-perf fallback is explicitly triggered (§5).
+- ~~**No native/Tauri layer**~~ — **LIFTED 2026-06-15** (§5a). The user authorised a Tauri build; `src-tauri/` now exists. Web stays the cloud/publish product; Tauri is the local/batch desktop product — one codebase, two targets.

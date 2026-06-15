@@ -9,6 +9,7 @@ import { publishImage, supabaseConfigured } from '../lib/supabase.js'
 import { useCatalog } from '../app/CatalogContext.jsx'
 import { PROFILES, loadPresets, persistPresets, newId } from '../app/presets.js'
 import { saveLocalImage } from '../app/localStore.js'
+import { IS_TAURI, openRawNative } from '../app/native.js'
 
 /* Develop — decode a raw in-browser via LibRaw-WASM, then edit it.
  *
@@ -455,6 +456,13 @@ export default function Develop({ active = true }) {
     decode(e.dataTransfer?.files?.[0])
   }
 
+  // Native (desktop) open dialog when running in Tauri; browser picker otherwise.
+  const openNative = async () => {
+    const file = await openRawNative()
+    if (file) decode(file)
+  }
+  const onChooseFile = () => (IS_TAURI ? openNative() : inputRef.current?.click())
+
   const set = (key) => (v) => setAdj((a) => ({ ...a, [key]: v }))
   const reset = () => setAdj(ZERO_ADJ)
 
@@ -679,7 +687,7 @@ export default function Develop({ active = true }) {
             size="sm"
             iconLeft="image"
             disabled={busy}
-            onClick={() => inputRef.current?.click()}
+            onClick={onChooseFile}
           >
             {hasImage ? 'Open another' : 'Choose file'}
           </Button>
