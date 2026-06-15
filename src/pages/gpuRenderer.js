@@ -384,6 +384,15 @@ export async function createGpuRenderer(canvas, { onHistogram } = {}) {
     }
   }
 
+  // Render the full pipeline (incl. spatial ops) and read it back as a blob.
+  // Used by batch with an OffscreenCanvas; waits for the GPU before reading.
+  const exportBlob = async (adj, type = 'image/jpeg', quality = 0.92) => {
+    render(adj)
+    await device.queue.onSubmittedWorkDone()
+    if (typeof canvas.convertToBlob === 'function') return canvas.convertToBlob({ type, quality })
+    return new Promise((resolve) => canvas.toBlob(resolve, type, quality))
+  }
+
   const destroy = () => {
     ;[srcTex, baseTex, tmpTex, blurSTex, blurLTex].forEach((t) => t?.destroy())
     ;[toneBuf, spatialBuf, blurBufs.sh, blurBufs.sv, blurBufs.lh, blurBufs.lv, binsBuf, histReadBuf].forEach((b) =>
@@ -392,5 +401,5 @@ export async function createGpuRenderer(canvas, { onHistogram } = {}) {
     device.destroy?.()
   }
 
-  return { setImage, render, destroy }
+  return { setImage, render, exportBlob, destroy }
 }

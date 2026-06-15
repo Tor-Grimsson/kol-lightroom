@@ -10,6 +10,8 @@ import { useCatalog } from '../app/CatalogContext.jsx'
 import { PROFILES, loadPresets, persistPresets, newId } from '../app/presets.js'
 import { saveLocalImage } from '../app/localStore.js'
 import { IS_TAURI, openRawNative } from '../app/native.js'
+import { buildWorking, buildWorkingFromImage, render } from '../app/pipeline.js'
+import BatchButton from '../app/BatchButton.jsx'
 
 /* Develop — decode a raw in-browser via LibRaw-WASM, then edit it.
  *
@@ -34,10 +36,6 @@ const RAW_ACCEPT = '.nef,.dng,.cr2,.cr3,.arw,.raf,.rw2,.orf,.tif,.tiff'
 const PREVIEW_OPTS = { useCameraWb: true, outputBps: 8, halfSize: true, userQual: 0 }
 // Full-res, default-quality demosaic — the master and the §5 latency gate.
 const MASTER_OPTS = { useCameraWb: true, outputBps: 8 }
-
-// Long-edge cap for the interactive editing buffer. Plenty for screen; keeps
-// the per-adjustment pixel loop to ~1-2M iterations so drags stay smooth.
-const WORK_MAX_EDGE = 1600
 
 // The parametric op stack. Zero = the decoded image, untouched. Tone + color
 // ops run on either backend; the Detail (spatial) ops need the GPU's blur
@@ -113,127 +111,6 @@ function fmtBytes(n) {
   if (n == null) return null
   const mb = n / (1024 * 1024)
   return mb >= 1 ? `${mb.toFixed(1)} MB` : `${Math.round(n / 1024)} KB`
-}
-
-/* Interleaved RGB → RGBA (16-bit output downshifted to 8). */
-function toRgba({ width, height, data, colors, bits }) {
-  const out = new Uint8ClampedArray(width * height * 4)
-  const px = width * height
-  const shift = bits === 16 ? 8 : 0
-  for (let i = 0, p = 0, s = 0; i < px; i++, s += colors) {
-    out[p++] = shift ? data[s] >> shift : data[s]
-    out[p++] = shift ? data[s + 1] >> shift : data[s + 1]
-    out[p++] = shift ? data[s + 2] >> shift : data[s + 2]
-    out[p++] = 255
-  }
-  return out
-}
-
-/* Build the interactive working buffer: RGBA downscaled to WORK_MAX_EDGE. */
-function buildWorking(img) {
-  const rgba = toRgba(img)
-  const scale = Math.min(1, WORK_MAX_EDGE / Math.max(img.width, img.height))
-  if (scale === 1) return { data: rgba, width: img.width, height: img.height }
-  const w = Math.max(1, Math.round(img.width * scale))
-  const h = Math.max(1, Math.round(img.height * scale))
-  const src = document.createElement('canvas')
-  src.width = img.width
-  src.height = img.height
-  src.getContext('2d').putImageData(new ImageData(rgba, img.width, img.height), 0, 0)
-  const dst = document.createElement('canvas')
-  dst.width = w
-  dst.height = h
-  const dctx = dst.getContext('2d')
-  dctx.imageSmoothingQuality = 'high'
-  dctx.drawImage(src, 0, 0, w, h)
-  return { data: dctx.getImageData(0, 0, w, h).data, width: w, height: h }
-}
-
-/* Working buffer from an already-decoded image element (a catalog derivative,
- * re-opened for editing). Same downscale cap as buildWorking. */
-function buildWorkingFromImage(el) {
-  const scale = Math.min(1, WORK_MAX_EDGE / Math.max(el.naturalWidth, el.naturalHeight))
-  const w = Math.max(1, Math.round(el.naturalWidth * scale))
-  const h = Math.max(1, Math.round(el.naturalHeight * scale))
-  const c = document.createElement('canvas')
-  c.width = w
-  c.height = h
-  const ctx = c.getContext('2d')
-  ctx.imageSmoothingQuality = 'high'
-  ctx.drawImage(el, 0, 0, w, h)
-  return { data: ctx.getImageData(0, 0, w, h).data, width: w, height: h }
-}
-
-/* Apply the op stack to the working buffer and paint it. Order: exposure →
- * white balance → tone (contrast + tonal regions, as a hue-preserving luma
- * curve) → color (vibrance + saturation). All math in 0..1 space. The tonal
- * regions use overlapping luma windows: blacks/whites peak at the extremes,
- * shadows/highlights at the lower/upper mids. */
-function render(src, adj, canvas) {
-  if (!src || !canvas) return
-  const { data, width, height } = src
-  canvas.width = width
-  canvas.height = height
-  const ctx = canvas.getContext('2d')
-  const out = new Uint8ClampedArray(data.length) // clamps on assignment
-  const expGain = Math.pow(2, adj.exposure)
-  const c = adj.contrast / 100
-  const t = (adj.temp / 100) * 0.4
-  const ti = (adj.tint / 100) * 0.4
-  const kHi = adj.highlights / 100
-  const kSh = adj.shadows / 100
-  const kWh = adj.whites / 100
-  const kBl = adj.blacks / 100
-  const vib = adj.vibrance / 100
-  const sat = adj.saturation / 100
-  for (let i = 0; i < data.length; i += 4) {
-    let r = data[i] / 255
-    let g = data[i + 1] / 255
-    let b = data[i + 2] / 255
-
-    // 1 — exposure (linear gain)
-    r *= expGain
-    g *= expGain
-    b *= expGain
-
-    // 2 — white balance (channel scaling)
-    r *= 1 + t
-    b *= 1 - t
-    g *= 1 - ti
-
-    // 3 — tone: response curve on luma, applied to RGB as a ratio (keeps hue)
-    const L = 0.2126 * r + 0.7152 * g + 0.0722 * b
-    const il = 1 - L
-    let o = (L - 0.5) * (1 + c) + 0.5 // contrast S-curve
-    o += kBl * 0.25 * il * il * il // blacks   — peaks at 0
-    o += kSh * 0.6 * il * il * L // shadows  — lower-mid
-    o += kHi * 0.6 * L * L * il // highlights— upper-mid
-    o += kWh * 0.25 * L * L * L // whites   — peaks at 1
-    if (L > 1e-4) {
-      const ratio = o / L
-      r *= ratio
-      g *= ratio
-      b *= ratio
-    } else {
-      r = o
-      g = o
-      b = o
-    }
-
-    // 4 — color: vibrance (weighted toward low-chroma pixels) then saturation
-    const L2 = 0.2126 * r + 0.7152 * g + 0.0722 * b
-    const chroma = Math.max(r, g, b) - Math.min(r, g, b)
-    const f = (1 + sat) * (1 + vib * (1 - chroma))
-    r = L2 + (r - L2) * f
-    g = L2 + (g - L2) * f
-    b = L2 + (b - L2) * f
-
-    out[i] = r * 255
-    out[i + 1] = g * 255
-    out[i + 2] = b * 255
-    out[i + 3] = 255
-  }
-  ctx.putImageData(new ImageData(out, width, height), 0, 0)
 }
 
 function Row({ k, v }) {
@@ -698,6 +575,7 @@ export default function Develop({ active = true }) {
             className="hidden"
             onChange={(e) => decode(e.target.files?.[0])}
           />
+          <BatchButton adj={adj} />
           <span className="truncate kol-mono-12 text-meta">
             {state === 'decoding'
               ? 'Decoding…'

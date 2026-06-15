@@ -11,7 +11,7 @@ Current project state + operational reference. Updated at the end of each signif
 
 For chronological detail see `session-log/`. For load-bearing decisions see `ARCHITECTURE.md`. For decision history / alternatives considered see `../history.md`. For speculative future work see `../plan.md`.
 
-**Last updated:** 2026-06-14
+**Last updated:** 2026-06-15
 
 ---
 
@@ -20,7 +20,8 @@ For chronological detail see `session-log/`. For load-bearing decisions see `ARC
 - **Freshly scaffolded** (2026-06-13) by hand-copying the `_kol-labs-single-init-state` template (the `/init-scaffold` pipeline was broken). Renamed `kol-labs` → `kol-lightroom` across identity files + docs; stale template session logs dropped.
 - **Single self-contained Vite app.** One `package.json`, one build, repo root = the app. DS inlined as source under `src/components/` + `src/styles/` (the `kol-*.css` set). Imports are direct relative file paths (reference style).
 - **Domain:** raw-image editing (NEF/DNG/CR2/TIFF + parametric color-correction layers) on the produce side; high-quality image/video delivery via the kolkrabbi B2 CDN on the publish side.
-- **Platform DECIDED 2026-06-13: pure web** (LibRaw-WASM decode + WebGPU pipeline). Chosen for stack/CDN fit and reversibility — this Vite UI is also a Tauri frontend, so native is a cheap wrap later if WASM perf on big raws ever forces it (ARCH §5). Tauri is the recorded fallback, not the plan.
+- **Platform: web + native, one codebase (ARCH §5 + §5a).** Web is the cloud/publish product (deployed to **Vercel → `lr.kolkrabbi.io`**). As of **2026-06-15** there is also a **Tauri native macOS app** (`src-tauri/`, builds `.app`/`.dmg`) — user-authorised; the "no Tauri" non-goal is LIFTED. Same Vite UI, native filesystem.
+- **The UI is now a Lightroom-style module app (2026-06-15).** `LightroomShell` (top `Library|Develop` switcher + persistent **Filmstrip**) replaced the KOL AppShell/SideNav for the app routes. Both modules stay mounted (visibility toggle) so WebGPU + the decoded photo survive switches. Loupe image viewer, LR 3-panel Develop, Profiles + Presets, before/after, zoom, thumb-size, **round-trip** (open catalog image with its edit), **batch** engine, and a **local (IndexedDB) storage** option alongside cloud.
 - **`/develop` is a working editor (2026-06-14).** Two-tier decode (fast preview + full master), a 15-slider parametric panel (Tone/Color/Detail), a **multi-pass WebGPU pipeline** (tone/color + spatial ops + histogram compute), live histogram, and web-master JPEG export. Verified live on a 51MP DNG. **§5 gate measured:** full-res decode ~7.9s, preview ~2.6s — web NOT abandoned (interactive number is the preview; full-res is export-time). CPU fallback covers tone/color only.
 - **`/library` is a working image catalog, LIVE on cloud Supabase (2026-06-14).** Second publish pipeline (ARCH §6): bytes in B2, one **Supabase Postgres** row per image (key + CDN URL, capture metadata, the editor's `edit` op-stack JSONB, tags). `scripts/ingest.mjs` ingests; `/library` is a filterable gallery reading the **cloud project** (`tvuyyybxvfkmgflxvhii`, North EU/Stockholm) via the publishable key. **First external backend dependency** — weakens §1 self-containment for this feature only (Library shows an empty state when unconfigured).
 
@@ -37,24 +38,23 @@ For chronological detail see `session-log/`. For load-bearing decisions see `ARC
 
 ## What's pending
 
-- **git init + first commit** — `.gitignore` is prepared (excludes `.env.local` + scratch); user runs it. Then optionally push to GitHub (enables the Supabase GitHub integration).
-- **Cloud demo data** — re-ingest rows / clean the 3 paste-dirtied `cdn_url`s; needs the cloud **secret key** (`sb_secret_…`) in `SUPABASE_SERVICE_ROLE_KEY`.
+- **Masking + spot/heal retouching** — the recommended next feature: local adjustments (radial/gradient/brush masks driving the op-stack) + spot removal/heal. The Photoshop-adjacent work that *fits* a raw editor. NOT layers/channels/bitmap compositing (separate app).
+- **B2 byte-path for publish** — published bytes currently go to **Supabase Storage** (MVP); move to B2 presigned upload via the Edge Function. Needs the user's **B2 S3-compatible keys** as function secrets (`supabase secrets set`).
+- **Rebuild the native app** — `.app`/`.dmg` predate batch + local-storage + GPU-batch; `pnpm tauri build` to bake them in. Then **native decode** in Rust (rawler/libraw-rs) for the real desktop perf/batch win.
+- **Full-res export** — exports the ≤1600px working render; render the full master for a true full-size derivative.
+- **Tone curve + HSL/per-channel** · **Auth** (gate writes) · **Video lane** (Bunny vs self-hosted HLS into `hls-library/`).
 - **House the Supabase guide** — move `docs/supabase-guide/` → `~/.dotfiles/docs`.
-- **In-app publish (editor → catalog)** — a "Publish" button in `/develop` that exports the master, pushes to B2, and writes the row in-browser (via a Supabase Edge Function minting a B2 presigned URL — no B2 secret in the client). Replaces the local ingest script for the in-app flow.
-- **Editor ↔ catalog round-trip** — "open in develop" from a Library card restores the stored `edit` op-stack (the JSONB column already carries it).
-- **Tone curve + HSL/per-channel color** — next panel sections; the GPU backend carries them cheaply now.
-- **Full-res export** — currently exports the ≤1600px working render (the web master); render the full master through the pipeline when a true full-size derivative is needed.
-- **Masks / local adjustments** — not started.
-- **Video delivery** — decide Bunny Stream vs self-hosted HLS into the `hls-library/` lane.
+- ~~In-app publish~~ ✓ · ~~round-trip~~ ✓ · ~~git/GitHub~~ ✓ (`Tor-Grimsson/kol-lightroom`).
 
 ## Active known issues
 
 - **Decode ~7.9s full-res, single-threaded** on a 51MP DNG (preview ~2.6s). The COOP/COEP isolation headers (which enabled WASM threads, ~1s gain) were **removed** because they broke cross-origin CDN `<img>` loads across browsers — reliable images won the trade. An instant embedded-JPEG preview path was discussed, not built.
-- **GPU + CPU op math are duplicated** — `gpuRenderer.js` WGSL and `Develop.jsx` `render()` carry the same tone/color stack. Keep them in sync or they drift.
-- **CPU fallback is tone/color only** — Detail (spatial) sliders + histogram are GPU-only (they ride the blur/compute passes) and are hidden when `Engine: CPU`.
+- **Op math in 3 synced places** — `gpuRenderer.js` WGSL (full ops) and `src/app/pipeline.js` (CPU tone/color, shared by the editor's CPU fallback **and** batch). Keep in sync.
+- **CPU fallback / CPU batch are tone/color only** — Detail (spatial) ops are GPU-only. Batch prefers the GPU (OffscreenCanvas) for full ops; falls back to CPU tone/color.
+- **Native runtime is unverified headlessly** — Playwright can't drive the Tauri WKWebView; native file-open + batch need the user to run the `.app`. The `.app`/`.dmg` also predate batch/local-storage/GPU-batch (rebuild with `pnpm tauri build`).
+- **Published bytes are in Supabase Storage, not B2** (MVP) — B2 presigned upload is the documented follow-up.
 - **No cross-origin isolation** — COOP/COEP headers were removed from `vite.config.js`; CDN `<img>` loads need no special handling. **Do not re-add isolation** without also solving cross-origin image loading (it re-breaks the Library thumbnails).
 - **3 cloud `cdn_url`s are whitespace-dirty** — newlines baked in by the SQL Editor wrapping long lines. The Library strips whitespace from URLs so they render; clean the rows with an `update` when convenient.
-- **git not initialized yet** — user-driven; `.gitignore` is ready.
 - **Latent cascade note** (inherited): `kol-theme.css` imports `kol-components-*` *unlayered*, so component classes outrank Tailwind `utilities` — inline utility overrides of a component class won't win until a `layer(components)` pass.
 
 ---
@@ -68,7 +68,17 @@ For chronological detail see `session-log/`. For load-bearing decisions see `ARC
 | `src/index.css` | CSS entry — cascade order is load-bearing (ARCH §3) | tailwind → theme → brand color → framework |
 | `src/styles/` | all DS CSS (theme barrel + brand color + framework chrome) | `kol-theme.css` imports the rest |
 | `src/pages/Develop.jsx` | the editor: decode + op-stack state + panel UI + CPU fallback render | `ZERO_ADJ`/`TONE`/`COLOR`/`DETAIL` op config; `decode()`, `setSource()` |
-| `src/pages/gpuRenderer.js` | WebGPU backend: multi-pass tone/color + blur + spatial + histogram compute | WGSL shaders; `setImage()`/`render()`; op math mirrors Develop's `render()` |
+| `src/pages/gpuRenderer.js` | WebGPU backend: multi-pass tone/color + blur + spatial + histogram compute | WGSL shaders; `setImage()`/`render()`/`exportBlob()`; op math mirrors `pipeline.js` |
+| `src/app/LightroomShell.jsx` | app chrome — module switcher + filmstrip; both modules stay mounted | the shell, replaces AppShell/SideNav |
+| `src/app/CatalogContext.jsx` | catalog state — cloud (Supabase) or local (IndexedDB), selection, `editTarget`, `source` | `reload()`; `cdn_url` whitespace guard centralized here |
+| `src/app/Filmstrip.jsx` | persistent bottom catalog strip | select / dbl-click → develop |
+| `src/app/pipeline.js` | shared CPU op-stack (tone/color) — editor fallback + batch | `buildWorking`/`render`; keep synced with WGSL |
+| `src/app/batch.js` · `BatchButton.jsx` | batch engine (GPU preferred, CPU fallback) + UI | `runBatch(files, adj)`; web=zip, desktop=folder |
+| `src/app/localStore.js` | local image store (IndexedDB) — the "local" storage option | `saveLocalImage`/`listLocalImages`; blob: URLs |
+| `src/app/presets.js` | built-in PROFILES + localStorage presets | |
+| `src/app/native.js` | Tauri bridge (open/folder/read/write); `IS_TAURI` | calls `src-tauri` commands |
+| `src-tauri/` | Tauri 2 native app — `.app`/`.dmg`; commands `read_file_bytes`/`list_raws`/`write_file_bytes` | `src/lib.rs`, `tauri.conf.json`; `target/` git-ignored |
+| `supabase/functions/publish/` | Edge Function — in-app publish (bytes→Storage, row→DB, service key) | deployed `--no-verify-jwt` |
 | `src/pages/Library.jsx` | `/library` catalog gallery — queries Supabase, grid + tag/text filter | strips whitespace from `cdn_url` (paste-damage guard); plain CDN `<img>` |
 | `src/lib/supabase.js` | browser Supabase client (publishable key); null when env unset | `VITE_SUPABASE_URL` / `VITE_SUPABASE_PUBLISHABLE_KEY` (old `_ANON_KEY` still works) |
 | `scripts/ingest.mjs` | catalog ingest: `bucket up` → B2 + row upsert (service-role key) | reads `SUPABASE_URL` / `SUPABASE_SERVICE_ROLE_KEY` (never `VITE_`) |
@@ -92,19 +102,20 @@ For chronological detail see `session-log/`. For load-bearing decisions see `ARC
 ### SideNav ↔ nav config
 `SideNav`/`AppShell` (in `src/components/framework/`) take nav **data** as props from `src/sidebars.config.js`. Never hard-wire the shell to the config file.
 
-### Platform: web (ARCH §5)
-Decode runs client-side via `libraw-wasm` (Web Worker + WASM). Keep the repo web-only: **no** `src-tauri/` or Rust toolchain unless the measured-perf fallback is triggered.
+### Platform: web + native (ARCH §5 + §5a)
+Decode runs client-side via `libraw-wasm`. **Both targets ship from one codebase:** the web build (Vercel) and the Tauri native app (`src-tauri/`). Native decode (rawler/libraw-rs) is not built yet — the native app currently reuses the WASM decode. Keep the UI framework-agnostic so both targets share it.
+
+### Shell: LightroomShell (not AppShell)
+The app routes (`/library`, `/develop`) render inside `src/app/LightroomShell.jsx` — both modules stay mounted, toggled by path. The KOL `AppShell`/`SideNav` are no longer used by the app (still in the repo). Catalog state lives in `src/app/CatalogContext.jsx`.
 
 ---
 
 ## Roadmap (prioritized)
 
-1. ~~Milestone 1 live~~ ✓ · ~~WebGPU pipeline~~ ✓ · ~~develop panel + histogram~~ ✓ · ~~catalog pipeline (schema + ingest + /library)~~ ✓ (2026-06-14).
-2. ~~Real Supabase project~~ ✓ — cloud live (`tvuyyybxvfkmgflxvhii`, North EU). **Next:** `git init` + first commit; re-ingest/clean cloud data; house the Supabase guide in `~/.dotfiles/docs`.
-3. **In-app publish + editor↔catalog round-trip** — Publish button in /develop (Edge Function presigned B2 upload); "open in develop" restores the stored `edit` op-stack.
-4. **Tone curve + HSL/per-channel + masks** — next editor panel sections on the GPU backend.
-5. **Auth** — Supabase Auth gating writes.
-6. **Video lane** — Bunny Stream vs self-hosted HLS into `hls-library/`.
+1. ~~Decode/WebGPU/panel/histogram~~ ✓ · ~~cloud Supabase + catalog~~ ✓ · ~~in-app publish~~ ✓ · ~~Lightroom UI (shell/loupe/profiles/presets/polish)~~ ✓ · ~~round-trip~~ ✓ · ~~local storage~~ ✓ · ~~Tauri native app~~ ✓ · ~~batch (CPU+GPU)~~ ✓ (2026-06-14/15).
+2. **Masking + spot/heal retouching** — local adjustments + heal; the next big editor feature (fits a raw editor; not layers/channels).
+3. **B2 byte-path** for publish (presigned via Edge Function; needs B2 S3 keys) · **rebuild native app** + **native decode** (Rust).
+4. **Tone curve + HSL/per-channel** · **full-res export** · **Auth** · **Video lane**.
 
 ---
 
@@ -114,9 +125,9 @@ Decode runs client-side via `libraw-wasm` (Web Worker + WASM). Keep the repo web
 - **No workspace resurrection** — single app, single build, no `@kol/*` package identities (ARCH §1, §4).
 - **Relative imports per the reference**; no alias layer (ARCH §2).
 - **CSS cascade order in `src/index.css`** stays theme → brand → framework (ARCH §3).
-- **Web platform; no `src-tauri/`/Rust** unless the ARCH §5 perf fallback is triggered.
-- **Edits are parametric op stacks**, not pixel layers (ARCH §5).
-- **GPU and CPU render paths share op math** — `gpuRenderer.js` WGSL ↔ `Develop.jsx` `render()`. Change both together or they drift.
+- **Edits are parametric op stacks**, not pixel layers (ARCH §5). No Photoshop-style layers/channels — that's a separate app; masking + spot/heal are the retouching that fits.
+- **Op math lives in 3 synced places** — `gpuRenderer.js` WGSL (full ops), `src/app/pipeline.js` (CPU tone/color, shared by the editor's CPU fallback + batch). Change together or they drift.
+- **Native target exists** (`src-tauri/`, ARCH §5a) — keep the UI usable in both web + Tauri.
 - **Bytes in B2, rows in the DB** (ARCH §6) — the catalog stores B2 keys + metadata, never image bytes. Schema is backend-agnostic.
 - **Service-role/secret key is Node-only** — never a `VITE_` var (those bundle into the browser). Browser uses the **publishable key** (`VITE_SUPABASE_PUBLISHABLE_KEY`, formerly "anon"); writes are gated by RLS.
 - **No COOP/COEP cross-origin-isolation headers** — they break cross-origin CDN images. Don't re-add without solving image loading (ARCH §6 prod note / known issues).
