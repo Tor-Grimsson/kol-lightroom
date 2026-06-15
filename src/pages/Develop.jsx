@@ -6,6 +6,9 @@ import Divider from '../components/atoms/Divider.jsx'
 import LabeledControl from '../components/molecules/LabeledControl.jsx'
 import { createGpuRenderer } from './gpuRenderer.js'
 import { publishImage, supabaseConfigured } from '../lib/supabase.js'
+import { useCatalog } from '../app/CatalogContext.jsx'
+import { PROFILES, loadPresets, persistPresets, newId } from '../app/presets.js'
+import { saveLocalImage } from '../app/localStore.js'
 
 /* Develop — decode a raw in-browser via LibRaw-WASM, then edit it.
  *
@@ -145,6 +148,21 @@ function buildWorking(img) {
   return { data: dctx.getImageData(0, 0, w, h).data, width: w, height: h }
 }
 
+/* Working buffer from an already-decoded image element (a catalog derivative,
+ * re-opened for editing). Same downscale cap as buildWorking. */
+function buildWorkingFromImage(el) {
+  const scale = Math.min(1, WORK_MAX_EDGE / Math.max(el.naturalWidth, el.naturalHeight))
+  const w = Math.max(1, Math.round(el.naturalWidth * scale))
+  const h = Math.max(1, Math.round(el.naturalHeight * scale))
+  const c = document.createElement('canvas')
+  c.width = w
+  c.height = h
+  const ctx = c.getContext('2d')
+  ctx.imageSmoothingQuality = 'high'
+  ctx.drawImage(el, 0, 0, w, h)
+  return { data: ctx.getImageData(0, 0, w, h).data, width: w, height: h }
+}
+
 /* Apply the op stack to the working buffer and paint it. Order: exposure →
  * white balance → tone (contrast + tonal regions, as a hue-preserving luma
  * curve) → color (vibrance + saturation). All math in 0..1 space. The tonal
@@ -227,7 +245,24 @@ function Row({ k, v }) {
   )
 }
 
-export default function Develop() {
+/* Collapsible right-panel section (Lightroom-style). */
+function Section({ title, defaultOpen = true, children }) {
+  const [open, setOpen] = useState(defaultOpen)
+  return (
+    <div className="border-b border-fg-08">
+      <button
+        onClick={() => setOpen((o) => !o)}
+        className="flex w-full items-center justify-between px-3 py-2 kol-helper-10 uppercase tracking-widest text-meta transition-colors hover:text-body"
+      >
+        <span>{title}</span>
+        <span className="text-meta">{open ? '–' : '+'}</span>
+      </button>
+      {open && <div className="flex flex-col gap-3 px-3 pb-3">{children}</div>}
+    </div>
+  )
+}
+
+export default function Develop({ active = true }) {
   const inputRef = useRef(null)
   const canvasRef = useRef(null)
   const histRef = useRef(null) // histogram canvas (2d)
@@ -241,7 +276,12 @@ export default function Develop() {
   const [info, setInfo] = useState(null)
   const [previewMs, setPreviewMs] = useState(null)
   const [adj, setAdj] = useState(ZERO_ADJ)
+  const [preview, setPreview] = useState(null) // hover-preview of a preset/profile (overrides adj for render)
+  const [presets, setPresets] = useState(loadPresets)
   const [dragging, setDragging] = useState(false)
+  const [showBefore, setShowBefore] = useState(false) // before/after compare
+  const [zoom, setZoom] = useState('fit') // 'fit' | '100'
+  const { reload, editTarget, setEditTarget, source } = useCatalog() ?? {}
 
   // Bring up the WebGPU backend once; stay on CPU if it doesn't init. If a
   // source already landed before init resolved, hand it over.
@@ -268,19 +308,81 @@ export default function Develop() {
     }
   }, [])
 
-  // Re-render whenever an adjustment changes or a fresher source buffer lands.
+  // Re-render whenever the edit changes, a hover-preview is active, or a fresher
+  // source buffer lands. `preview` (a preset/profile being hovered) overrides
+  // the committed `adj` for the render only.
   useEffect(() => {
     if (!srcRef.current) return
-    if (gpuRef.current) gpuRef.current.render(adj)
-    else render(srcRef.current, adj, canvasRef.current)
-  }, [adj, srcVersion])
+    const a = showBefore ? ZERO_ADJ : (preview ?? adj)
+    if (gpuRef.current) gpuRef.current.render(a)
+    else render(srcRef.current, a, canvasRef.current)
+  }, [adj, preview, showBefore, srcVersion])
 
-  const setSource = useCallback((img) => {
-    const buf = buildWorking(img)
+  // Keyboard: \ (or Y) toggles before/after.
+  useEffect(() => {
+    const onKey = (e) => {
+      if (!active) return
+      const t = e.target
+      if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable)) return
+      if (e.key === '\\' || e.key === 'y' || e.key === 'Y') {
+        setShowBefore((s) => !s)
+        e.preventDefault()
+      }
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [active])
+
+  const setWorkingBuffer = useCallback((buf) => {
     srcRef.current = buf
     gpuRef.current?.setImage(buf)
     setSrcVersion((v) => v + 1)
   }, [])
+  const setSource = useCallback((img) => setWorkingBuffer(buildWorking(img)), [setWorkingBuffer])
+
+  // Round-trip: arriving from the Library with a catalog image to re-edit. Load
+  // its derivative as the source and restore the stored op-stack. (Edits the
+  // published derivative — true non-destructive-from-raw needs the raw kept.)
+  useEffect(() => {
+    if (!editTarget) return
+    const url = (editTarget.cdn_url || '').replace(/\s+/g, '')
+    if (!url.startsWith('http') && !url.startsWith('blob:')) {
+      setEditTarget?.(null)
+      return
+    }
+    let cancelled = false
+    setState('decoding')
+    setErr(null)
+    const im = new Image()
+    im.crossOrigin = 'anonymous'
+    im.onload = () => {
+      if (cancelled) return
+      setWorkingBuffer(buildWorkingFromImage(im))
+      setAdj({ ...ZERO_ADJ, ...(editTarget.edit || {}) })
+      setMeta({
+        camera_make: editTarget.camera || '',
+        camera_model: '',
+        iso_speed: editTarget.iso,
+        shutter: editTarget.shutter,
+        aperture: editTarget.aperture,
+        focal_len: editTarget.focal_len,
+        timestamp: editTarget.shot_at ? new Date(editTarget.shot_at) : null,
+      })
+      setInfo({ fileName: editTarget.filename, width: im.naturalWidth, height: im.naturalHeight, colors: 4, bits: 8, ms: null })
+      setState('done')
+      setEditTarget?.(null)
+    }
+    im.onerror = () => {
+      if (cancelled) return
+      setErr('Could not load image for editing')
+      setState('error')
+      setEditTarget?.(null)
+    }
+    im.src = url
+    return () => {
+      cancelled = true
+    }
+  }, [editTarget, setWorkingBuffer, setEditTarget])
 
   const decode = useCallback(
     async (file) => {
@@ -356,6 +458,29 @@ export default function Develop() {
   const set = (key) => (v) => setAdj((a) => ({ ...a, [key]: v }))
   const reset = () => setAdj(ZERO_ADJ)
 
+  // Profile = a built-in base look (replaces the stack with the profile's values).
+  const applyProfile = (name) => {
+    const p = PROFILES.find((x) => x.name === name)
+    setAdj({ ...ZERO_ADJ, ...(p?.adj || {}) })
+  }
+  // Presets = user-saved snapshots of the full op-stack (localStorage).
+  const savePreset = () => {
+    const name = window.prompt('Preset name')?.trim()
+    if (!name) return
+    const next = [...presets, { id: newId(), name, adj }]
+    setPresets(next)
+    persistPresets(next)
+  }
+  const applyPreset = (p) => {
+    setPreview(null)
+    setAdj({ ...ZERO_ADJ, ...p.adj })
+  }
+  const deletePreset = (id) => {
+    const next = presets.filter((p) => p.id !== id)
+    setPresets(next)
+    persistPresets(next)
+  }
+
   // Export the rendered working-res canvas as a JPEG "web master" — the
   // CDN-bound derivative (web delivery doesn't need the 51MP master). The B2
   // bucket push itself is a CLI step (the `bucket` wrapper), outside the app.
@@ -409,6 +534,44 @@ export default function Develop() {
             tags: [],
           })
           setPublish({ ok: image.filename })
+          reload?.() // refresh the catalog so it shows in the filmstrip + library
+        } catch (e) {
+          setPublish({ error: e?.message || String(e) })
+        }
+      },
+      'image/jpeg',
+      0.92,
+    )
+  }
+
+  // Save local: same JPEG, stored in the browser (IndexedDB) instead of a cloud.
+  const saveLocal = () => {
+    const canvas = canvasRef.current
+    if (!canvas) return
+    setPublish('busy')
+    canvas.toBlob(
+      async (blob) => {
+        if (!blob) return setPublish({ error: 'no image' })
+        try {
+          const row = await saveLocalImage({
+            blob,
+            filename: `${(info?.fileName || 'export').replace(/\.[^.]+$/, '')}-web.jpg`,
+            meta: {
+              width: canvas.width,
+              height: canvas.height,
+              camera: [meta?.camera_make, meta?.camera_model].filter(Boolean).join(' ') || null,
+              iso: meta?.iso_speed ?? null,
+              shutter: meta?.shutter ?? null,
+              aperture: meta?.aperture ?? null,
+              focal_len: meta?.focal_len ?? null,
+              shot_at:
+                meta?.timestamp instanceof Date && !isNaN(meta.timestamp) ? meta.timestamp.toISOString() : null,
+            },
+            edit: adj,
+            tags: [],
+          })
+          setPublish({ ok: `${row.filename} (local)` })
+          if (source === 'local') reload?.()
         } catch (e) {
           setPublish({ error: e?.message || String(e) })
         }
@@ -422,170 +585,251 @@ export default function Develop() {
   const busy = state === 'decoding' || state === 'preview'
   const isGpu = backend === 'gpu'
 
+  const activeEdits = Object.entries(adj).filter(([, v]) => v !== 0)
+
   return (
-    <main className="p-8 md:p-12 max-w-6xl">
-      <p className="kol-helper-12 text-meta uppercase mb-2">kol-lightroom · develop</p>
-      <h1 className="kol-sans-display-01 text-emphasis mb-4">Raw decode</h1>
-      <p className="kol-sans-body-01 text-body max-w-prose mb-8">
-        Drop a raw file (NEF, CR2/CR3, DNG, ARW, RAF, TIFF…) to decode it in-browser via
-        LibRaw compiled to WebAssembly. Demosaic and camera white balance run in a Web
-        Worker; the result is painted to a canvas at full resolution.
-      </p>
-
-      <div
-        onDragOver={(e) => {
-          e.preventDefault()
-          setDragging(true)
-        }}
-        onDragLeave={() => setDragging(false)}
-        onDrop={onDrop}
-        className={`rounded-lg border border-dashed p-8 mb-8 flex flex-col items-center gap-4 text-center transition-colors ${
-          dragging ? 'border-fg-40 bg-fg-04' : 'border-fg-16'
-        }`}
-      >
-        <p className="kol-sans-body-01 text-body">
-          {state === 'decoding'
-            ? 'Decoding…'
-            : state === 'preview'
-              ? 'Refining full resolution…'
-              : 'Drop a raw file here'}
-        </p>
-        <Button
-          variant="secondary"
-          iconLeft="image"
-          disabled={busy}
-          onClick={() => inputRef.current?.click()}
-        >
-          Choose file
-        </Button>
-        <input
-          ref={inputRef}
-          type="file"
-          accept={RAW_ACCEPT}
-          className="hidden"
-          onChange={(e) => decode(e.target.files?.[0])}
-        />
-      </div>
-
-      {state === 'error' && (
-        <p className="kol-mono-14 text-[var(--kol-color-red-400)] mb-8">Decode failed: {err}</p>
-      )}
-
-      <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-8 items-start">
-        <div className="min-w-0 rounded-lg overflow-hidden border border-fg-08 bg-fg-04">
-          <canvas ref={canvasRef} className={`block max-w-full h-auto ${hasImage ? '' : 'hidden'}`} />
-          {!hasImage && (
-            <div className="aspect-[3/2] flex items-center justify-center">
-              <span className="kol-helper-12 text-meta uppercase">
-                {state === 'decoding' ? 'Decoding…' : 'No image'}
-              </span>
-            </div>
-          )}
-        </div>
-
-        <div className="flex flex-col gap-6">
-          {hasImage && (
-            <div className="flex flex-col gap-5">
-              {isGpu && (
-                <canvas
-                  ref={histRef}
-                  width={256}
-                  height={72}
-                  className="block w-full h-[72px] rounded bg-fg-04 border border-fg-08"
-                />
-              )}
-              <div className="flex items-center justify-between">
-                <span className="kol-helper-10 text-meta uppercase tracking-widest">Adjustments</span>
-                <Button variant="ghost" size="sm" onClick={reset}>
-                  Reset
-                </Button>
-              </div>
-              {[...GROUPS, ...(isGpu ? [['Detail', DETAIL]] : [])].map(([title, group]) => (
-                <div key={title} className="flex flex-col gap-3">
-                  <span className="kol-helper-10 text-subtle uppercase tracking-widest">{title}</span>
-                  {group.map((s) => (
-                    <LabeledControl key={s.key} label={s.label}>
-                      <Slider
-                        variant="minimal"
-                        min={s.min}
-                        max={s.max}
-                        step={s.step}
-                        value={adj[s.key]}
-                        onChange={set(s.key)}
-                      />
-                    </LabeledControl>
+    <div className="flex h-full">
+      {/* LEFT — History + Info */}
+      <aside className="hidden w-[220px] shrink-0 flex-col overflow-auto border-r border-fg-08 bg-[#1b1b1b] xl:flex">
+        {hasImage && (
+          <>
+            <Section title="Presets">
+              <Button variant="secondary" size="sm" onClick={savePreset}>
+                Save current
+              </Button>
+              {presets.length === 0 ? (
+                <span className="kol-mono-12 text-meta">No presets yet</span>
+              ) : (
+                <div className="flex flex-col">
+                  {presets.map((p) => (
+                    <div key={p.id} className="group flex items-center gap-1">
+                      <button
+                        onClick={() => applyPreset(p)}
+                        onMouseEnter={() => setPreview({ ...ZERO_ADJ, ...p.adj })}
+                        onMouseLeave={() => setPreview(null)}
+                        className="flex-1 truncate py-1 text-left kol-mono-12 text-body transition-colors hover:text-emphasis"
+                      >
+                        {p.name}
+                      </button>
+                      <button
+                        onClick={() => deletePreset(p.id)}
+                        className="px-1 text-meta opacity-0 transition-opacity hover:text-body group-hover:opacity-100"
+                        title="Delete preset"
+                      >
+                        ×
+                      </button>
+                    </div>
                   ))}
                 </div>
-              ))}
-              <div className="flex flex-col gap-2">
-                <div className="flex gap-2">
-                  <Button variant="secondary" size="sm" iconLeft="download" onClick={exportJpeg}>
-                    Export
-                  </Button>
-                  {supabaseConfigured && (
-                    <Button
-                      variant="primary"
-                      size="sm"
-                      iconLeft="image"
-                      disabled={publish === 'busy'}
-                      onClick={publishToLibrary}
-                    >
-                      {publish === 'busy' ? 'Publishing…' : 'Publish to library'}
-                    </Button>
-                  )}
+              )}
+            </Section>
+            <Section title="History">
+              {activeEdits.length ? (
+                <div className="kol-mono-12 text-body">
+                  {activeEdits.map(([k, v]) => (
+                    <div key={k} className="flex justify-between gap-2">
+                      <span className="capitalize text-meta">{k}</span>
+                      <span>{v}</span>
+                    </div>
+                  ))}
                 </div>
-                {publish?.ok && (
-                  <span className="kol-mono-12 text-[var(--kol-color-green-400)]">
-                    Published “{publish.ok}” ✓
-                  </span>
-                )}
-                {publish?.error && (
-                  <span className="kol-mono-12 text-[var(--kol-color-red-400)]">
-                    Publish failed: {publish.error}
-                  </span>
-                )}
-              </div>
-            </div>
-          )}
-
-          {info && meta && (
-            <>
-              {hasImage && <Divider />}
-              <dl className="kol-mono-12 text-body flex flex-col gap-3">
-                <Row k="File" v={info.fileName} />
-                <Row k="Size" v={fmtBytes(info.fileSize)} />
-                <Row k="Camera" v={[meta.camera_make, meta.camera_model].filter(Boolean).join(' ')} />
+              ) : (
+                <span className="kol-mono-12 text-meta">No adjustments</span>
+              )}
+            </Section>
+            <Section title="Info" defaultOpen={false}>
+              <dl className="flex flex-col gap-3 kol-mono-12 text-body">
+                <Row k="File" v={info?.fileName} />
                 <Row
-                  k="Exposure"
-                  v={[
-                    fmtShutter(meta.shutter),
-                    meta.aperture ? `f/${meta.aperture}` : null,
-                    meta.iso_speed ? `ISO ${meta.iso_speed}` : null,
-                    meta.focal_len ? `${meta.focal_len}mm` : null,
-                  ]
-                    .filter(Boolean)
-                    .join(' · ')}
+                  k="Camera"
+                  v={meta ? [meta.camera_make, meta.camera_model].filter(Boolean).join(' ') : null}
                 />
                 <Row
-                  k="Shot"
+                  k="Exposure"
                   v={
-                    meta.timestamp instanceof Date && !isNaN(meta.timestamp)
-                      ? meta.timestamp.toLocaleString()
+                    meta
+                      ? [
+                          fmtShutter(meta.shutter),
+                          meta.aperture ? `f/${meta.aperture}` : null,
+                          meta.iso_speed ? `ISO ${meta.iso_speed}` : null,
+                          meta.focal_len ? `${meta.focal_len}mm` : null,
+                        ]
+                          .filter(Boolean)
+                          .join(' · ')
                       : null
                   }
                 />
                 <Row
                   k="Pixels"
-                  v={info.width ? `${info.width}×${info.height} · ${info.colors}ch · ${info.bits}-bit` : null}
+                  v={info?.width ? `${info.width}×${info.height} · ${info.colors}ch · ${info.bits}-bit` : null}
                 />
-                <Row k="Preview" v={previewMs != null ? `${previewMs} ms · ½-res` : null} />
-                <Row k="Decode" v={info.ms != null ? `${info.ms} ms` : 'full-res decoding…'} />
+                <Row k="Decode" v={info?.ms != null ? `${info.ms} ms` : hasImage ? 'full-res decoding…' : null} />
                 <Row k="Engine" v={backend === 'gpu' ? 'WebGPU' : 'CPU'} />
               </dl>
-            </>
+            </Section>
+          </>
+        )}
+      </aside>
+
+      {/* CENTER — image stage */}
+      <div className="flex min-w-0 flex-1 flex-col bg-black">
+        <div className="flex shrink-0 items-center gap-3 border-b border-fg-08 bg-black/40 px-3 py-2">
+          <Button
+            variant="secondary"
+            size="sm"
+            iconLeft="image"
+            disabled={busy}
+            onClick={() => inputRef.current?.click()}
+          >
+            {hasImage ? 'Open another' : 'Choose file'}
+          </Button>
+          <input
+            ref={inputRef}
+            type="file"
+            accept={RAW_ACCEPT}
+            className="hidden"
+            onChange={(e) => decode(e.target.files?.[0])}
+          />
+          <span className="truncate kol-mono-12 text-meta">
+            {state === 'decoding'
+              ? 'Decoding…'
+              : state === 'preview'
+                ? 'Refining full resolution…'
+                : state === 'error'
+                  ? `Decode failed: ${err}`
+                  : hasImage
+                    ? info?.fileName
+                    : 'Drop a raw file to begin'}
+          </span>
+          {hasImage && (
+            <div className="ml-auto flex items-center gap-2">
+              <Button
+                variant={showBefore ? 'secondary' : 'ghost'}
+                size="sm"
+                onClick={() => setShowBefore((s) => !s)}
+                title="Before / After (\)"
+              >
+                {showBefore ? 'Before' : 'After'}
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setZoom((z) => (z === 'fit' ? '100' : 'fit'))}
+                title="Zoom (click image)"
+              >
+                {zoom === 'fit' ? 'Fit' : '1:1'}
+              </Button>
+            </div>
+          )}
+        </div>
+        <div
+          onDragOver={(e) => {
+            e.preventDefault()
+            setDragging(true)
+          }}
+          onDragLeave={() => setDragging(false)}
+          onDrop={onDrop}
+          className={`relative min-h-0 flex-1 p-4 ${
+            zoom === 'fit' ? 'flex items-center justify-center overflow-hidden' : 'overflow-auto'
+          }`}
+        >
+          <canvas
+            ref={canvasRef}
+            onClick={() => hasImage && setZoom((z) => (z === 'fit' ? '100' : 'fit'))}
+            className={`block ${hasImage ? '' : 'hidden'} ${
+              zoom === 'fit' ? 'max-h-full max-w-full cursor-zoom-in' : 'cursor-zoom-out'
+            }`}
+          />
+          {!hasImage && (
+            <span className="kol-helper-12 uppercase text-meta">
+              {state === 'decoding' ? 'Decoding…' : 'Drop a raw file here'}
+            </span>
+          )}
+          {dragging && (
+            <div className="absolute inset-3 flex items-center justify-center rounded-lg border-2 border-dashed border-fg-40 bg-fg-04/40 kol-helper-12 uppercase text-emphasis">
+              Drop to open
+            </div>
           )}
         </div>
       </div>
-    </main>
+
+      {/* RIGHT — histogram + adjustments + export/publish */}
+      <aside className="flex w-[300px] shrink-0 flex-col overflow-auto border-l border-fg-08 bg-[#1b1b1b]">
+        {!hasImage && <div className="p-4 kol-mono-12 text-meta">Open a raw to start editing.</div>}
+        {hasImage && (
+          <>
+            {isGpu && (
+              <div className="border-b border-fg-08 p-3">
+                <canvas ref={histRef} width={256} height={72} className="block h-[72px] w-full rounded bg-fg-04" />
+              </div>
+            )}
+            <div className="flex items-center gap-2 border-b border-fg-08 px-3 py-2">
+              <span className="kol-helper-10 uppercase tracking-widest text-meta">Profile</span>
+              <select
+                onChange={(e) => applyProfile(e.target.value)}
+                defaultValue="Standard"
+                className="ml-auto rounded bg-fg-08 px-2 py-1 kol-mono-12 text-body outline-none"
+              >
+                {PROFILES.map((p) => (
+                  <option key={p.name} value={p.name}>
+                    {p.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="flex items-center justify-between border-b border-fg-08 px-3 py-2">
+              <span className="kol-helper-10 uppercase tracking-widest text-meta">Adjustments</span>
+              <Button variant="ghost" size="sm" onClick={reset}>
+                Reset
+              </Button>
+            </div>
+            {[...GROUPS, ...(isGpu ? [['Detail', DETAIL]] : [])].map(([title, group]) => (
+              <Section key={title} title={title}>
+                {group.map((s) => (
+                  <LabeledControl key={s.key} label={s.label}>
+                    <Slider
+                      variant="minimal"
+                      min={s.min}
+                      max={s.max}
+                      step={s.step}
+                      value={adj[s.key]}
+                      onChange={set(s.key)}
+                    />
+                  </LabeledControl>
+                ))}
+              </Section>
+            ))}
+            <div className="mt-auto flex flex-col gap-2 border-t border-fg-08 p-3">
+              <div className="flex flex-wrap gap-2">
+                <Button variant="secondary" size="sm" iconLeft="download" onClick={exportJpeg} title="Save a copy to your computer">
+                  Export
+                </Button>
+                <Button variant="secondary" size="sm" disabled={publish === 'busy'} onClick={saveLocal} title="Save to the local (in-browser) library">
+                  Save local
+                </Button>
+                {supabaseConfigured && (
+                  <Button
+                    variant="primary"
+                    size="sm"
+                    iconLeft="image"
+                    disabled={publish === 'busy'}
+                    onClick={publishToLibrary}
+                    title="Publish to the shared cloud library"
+                  >
+                    {publish === 'busy' ? 'Publishing…' : 'Publish'}
+                  </Button>
+                )}
+              </div>
+              {publish?.ok && (
+                <span className="kol-mono-12 text-[var(--kol-color-green-400)]">Published “{publish.ok}” ✓</span>
+              )}
+              {publish?.error && (
+                <span className="kol-mono-12 text-[var(--kol-color-red-400)]">Publish failed: {publish.error}</span>
+              )}
+            </div>
+          </>
+        )}
+      </aside>
+    </div>
   )
 }

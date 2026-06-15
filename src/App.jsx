@@ -1,18 +1,21 @@
 import { Routes, Route } from 'react-router-dom'
-import AppShell from './components/framework/AppShell.jsx'
-import { NAV_TREE, getActivePage } from './sidebars.config'
-import Home from './pages/Home'
-import Develop from './pages/Develop'
-import Library from './pages/Library'
+import { CatalogProvider } from './app/CatalogContext.jsx'
+import LightroomShell from './app/LightroomShell.jsx'
 
+/* One catch-all route renders the shell; the shell keeps both modules mounted
+ * and toggles visibility by path (so the editor's WebGPU device + decoded photo
+ * survive module switches). */
 export default function App() {
   return (
     <Routes>
-      <Route element={<AppShell navTree={NAV_TREE} getActivePage={getActivePage} />}>
-        <Route path="/" element={<Home />} />
-        <Route path="/develop" element={<Develop />} />
-        <Route path="/library" element={<Library />} />
-      </Route>
+      <Route
+        path="/*"
+        element={
+          <CatalogProvider>
+            <LightroomShell />
+          </CatalogProvider>
+        }
+      />
     </Routes>
   )
 }
